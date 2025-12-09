@@ -5,133 +5,154 @@ import Counter from '../components/Counter'
 import ChainVote from '../components/ChainVote'
 
 /**
- * 这里定义 MDX 内常见元素的 React 组件映射（更灵活的样式控制）
+ * 这里定义 MDX 内常见元素的 React 组件映射（基于 My First NFT 设计系统）
  */
 
 export const H1: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <h1 style={{ 
-    fontSize: '2.25rem', 
-    fontWeight: 700,
-    margin: '2rem 0 1rem', 
-    lineHeight: 1.3,
+  <h1 style={{
+    fontSize: '2.5rem',
+    fontWeight: 'var(--font-weight-semibold)',
+    margin: 'var(--spacing-8) 0 var(--spacing-4)',
+    lineHeight: 'var(--line-height-tight)',
+    color: 'var(--neutral-900)',
     textAlign: 'left'
   }}>{children}</h1>
 )
 
 export const H2: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <h2 style={{ 
-    fontSize: '1.6rem', 
-    fontWeight: 600,
-    margin: '2rem 0 1rem',
-    paddingTop: '1.5rem',
-    borderTop: '1px solid var(--border-color, #e0e0e0)',
+  <h2 style={{
+    fontSize: '1.8rem',
+    fontWeight: 'var(--font-weight-semibold)',
+    margin: 'var(--spacing-8) 0 var(--spacing-4)',
+    paddingTop: 'var(--spacing-6)',
+    borderTop: '2px solid var(--neutral-200)',
+    color: 'var(--neutral-900)',
     textAlign: 'left'
   }}>{children}</h2>
 )
 
 export const H3: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <h3 style={{ 
-    fontSize: '1.3rem', 
-    fontWeight: 600,
-    margin: '1.5rem 0 0.75rem',
+  <h3 style={{
+    fontSize: '1.2rem',
+    fontWeight: 'var(--font-weight-semibold)',
+    margin: 'var(--spacing-6) 0 var(--spacing-3)',
+    color: 'var(--neutral-900)',
     textAlign: 'left'
   }}>{children}</h3>
 )
 
 export const P: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <p style={{ 
-    fontSize: '1rem', 
-    margin: '0.75rem 0', 
-    lineHeight: 1.8,
-    textAlign: 'justify' // 两端对齐，解决句子长短不一问题
+  <p style={{
+    fontSize: '0.95rem',
+    margin: 'var(--spacing-3) 0',
+    lineHeight: 'var(--line-height-relaxed)',
+    color: 'var(--neutral-600)',
+    textAlign: 'justify'
   }}>{children}</p>
 )
 
 export const Small: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <small style={{ color: 'var(--text-secondary, #666)', display: 'block', marginTop: 8 }}>{children}</small>
+  <small style={{
+    color: 'var(--neutral-500)',
+    display: 'block',
+    marginTop: 'var(--spacing-1)',
+    fontSize: '0.85rem'
+  }}>{children}</small>
 )
 
 export const Blockquote: React.FC<React.PropsWithChildren> = ({ children }) => (
   <blockquote style={{
-    margin: '1.25rem 0',
-    padding: '1rem 1.25rem',
-    borderLeft: '4px solid var(--accent-color, #3b82f6)',
-    backgroundColor: 'var(--blockquote-bg, rgba(59, 130, 246, 0.08))',
-    borderRadius: '0 8px 8px 0',
+    margin: 'var(--spacing-5) 0',
+    padding: 'var(--spacing-4) var(--spacing-5)',
+    borderLeft: '4px solid var(--primary-blue)',
+    backgroundColor: 'var(--primary-blue-light)',
+    borderRadius: '0 var(--radius-medium) var(--radius-medium) 0',
     textAlign: 'left',
     width: '100%',
     boxSizing: 'border-box',
+    color: 'var(--neutral-700)',
+    fontSize: '0.95rem',
+    lineHeight: 'var(--line-height-relaxed)'
   }}>{children}</blockquote>
 )
 
 export const Ul: React.FC<React.PropsWithChildren> = ({ children }) => (
   <ul style={{
-    margin: '0.75rem 0',
-    paddingLeft: '1.5rem',
-    lineHeight: 1.8
+    margin: 'var(--spacing-3) 0',
+    paddingLeft: 'var(--spacing-6)',
+    lineHeight: 'var(--line-height-relaxed)',
+    color: 'var(--neutral-600)'
   }}>{children}</ul>
 )
 
 export const Ol: React.FC<React.PropsWithChildren> = ({ children }) => (
   <ol style={{
-    margin: '0.75rem 0',
-    paddingLeft: '1.5rem',
-    lineHeight: 1.8
+    margin: 'var(--spacing-3) 0',
+    paddingLeft: 'var(--spacing-6)',
+    lineHeight: 'var(--line-height-relaxed)',
+    color: 'var(--neutral-600)'
   }}>{children}</ol>
 )
 
 export const Li: React.FC<React.PropsWithChildren> = ({ children }) => (
   <li style={{
-    margin: '0.4rem 0',
-    textAlign: 'justify'
+    margin: 'var(--spacing-1) 0',
+    textAlign: 'justify',
+    fontSize: '0.95rem'
   }}>{children}</li>
 )
 
 export const Hr: React.FC = () => (
   <hr style={{
-    margin: '2rem 0',
+    margin: 'var(--spacing-8) 0',
     border: 'none',
-    height: '1px',
-    backgroundColor: 'var(--border-color, #e0e0e0)'
+    height: '2px',
+    backgroundColor: 'var(--neutral-200)'
   }} />
 )
 
 export const Code: React.FC<React.PropsWithChildren> = ({ children }) => (
   <code style={{
-    backgroundColor: 'var(--code-bg, rgba(0,0,0,0.06))',
+    backgroundColor: 'var(--neutral-100)',
     padding: '0.15rem 0.4rem',
-    borderRadius: '4px',
+    borderRadius: 'var(--radius-small)',
     fontSize: '0.9em',
     fontFamily: 'Consolas, Monaco, monospace',
     display: 'inline',
+    color: 'var(--neutral-700)',
+    border: '1px solid var(--neutral-200)'
   }}>{children}</code>
 )
 
 export const Pre: React.FC<React.PropsWithChildren> = ({ children }) => (
   <pre style={{
-    backgroundColor: 'var(--pre-bg, #1e293b)',
-    color: 'var(--pre-color, #e2e8f0)',
-    padding: '1rem',
-    borderRadius: '8px',
+    backgroundColor: '#1e293b',
+    color: '#e2e8f0',
+    padding: 'var(--spacing-4)',
+    borderRadius: 'var(--radius-medium)',
+    border: '2px solid var(--neutral-black)',
     overflow: 'auto',
-    margin: '1rem 0',
+    margin: 'var(--spacing-4) 0',
     fontSize: '0.9rem',
-    lineHeight: 1.6,
+    lineHeight: 'var(--line-height-normal)',
     textAlign: 'left',
     width: '100%',
     boxSizing: 'border-box',
+    boxShadow: 'var(--shadow-level-1)'
   }}>{children}</pre>
 )
 
 export const Card: React.FC<React.PropsWithChildren & {accent?: boolean}> = ({ children, accent }) => (
   <div style={{
     width: '100%',
-    padding: '1.25rem',
+    padding: 'var(--spacing-5)',
     boxSizing: 'border-box',
-    backgroundColor: accent ? 'var(--card-accent-bg, rgba(251, 191, 36, 0.1))' : 'var(--card-bg, transparent)',
-    border: '1px solid var(--border-color, #e0e0e0)',
-    borderRadius: '8px',
-    margin: '1rem 0'
+    backgroundColor: accent ? 'var(--accent-yellow-light)' : 'var(--neutral-25)',
+    border: accent ? '3px solid var(--accent-yellow-dark)' : '3px solid var(--neutral-black)',
+    borderRadius: 'var(--radius-xlarge)',
+    margin: 'var(--spacing-4) 0',
+    boxShadow: 'var(--shadow-level-2)',
+    transition: 'transform var(--transition-normal) ease'
   }}>
     {children}
   </div>
@@ -157,7 +178,7 @@ export const mdxComponents = {
 }
 
 /**
- * MDXWrapper：提供统一的页面容器样式，跟随系统主题
+ * MDXWrapper：提供统一的页面容器样式，基于 My First NFT 设计系统
  */
 export const MDXWrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
   <MDXProvider components={mdxComponents}>
@@ -165,11 +186,12 @@ export const MDXWrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
       width: '100%',
       maxWidth: '800px',
       margin: '0 auto',
-      padding: '2rem 1.5rem',
+      padding: 'var(--spacing-8) var(--spacing-6)',
       boxSizing: 'border-box',
-      // 不设置背景色，跟随系统/父容器
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      lineHeight: 1.6
+      backgroundColor: 'var(--neutral-white)',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
+      lineHeight: 'var(--line-height-normal)',
+      minHeight: '100vh'
     }}>
       {children}
     </article>
