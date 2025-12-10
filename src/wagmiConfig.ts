@@ -21,17 +21,18 @@ export const wagmiConfig = createConfig({
         }),
     ],
     transports:{
-        [mainnet.id]: http(),
-        [polygon.id]: http(),
-        [sepolia.id]: http(),
-        [bscTestnet.id]: http(),
-        [polygonAmoy.id]: http(),
+        [mainnet.id]: http('https://ethereum-rpc.publicnode.com'),
+        [polygon.id]: http('https://polygon-bor-rpc.publicnode.com'),
+        [sepolia.id]: http('https://ethereum-sepolia-rpc.publicnode.com'),
+        [bscTestnet.id]: http('https://bsc-testnet-rpc.publicnode.com'),
+        [polygonAmoy.id]: http('https://polygon-amoy-bor-rpc.publicnode.com'),
     },
     ssr:false,
 })
 
 // 创建 public client 用于读取链上数据
+// 使用公共 Sepolia RPC 端点以提高稳定性
 export const publicClient = createPublicClient({
     chain: sepolia,
-    transport: http(),
+    transport: http('https://ethereum-sepolia-rpc.publicnode.com'),
 })
