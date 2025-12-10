@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAccount, useChainId, useReadContract } from 'wagmi'
-import SimpleVotingV4ABI from '../abi/SimpleVotingV4.json'
+import SimpleVotingV5ABI from '../abi/SimpleVotingV5.json'
 import {
-  SIMPLE_VOTING_V4_ADDRESS,
+  SIMPLE_VOTING_V5_ADDRESS,
   type SimpleVotingOption,
 } from '../zk/simpleVotingClient'
 import { useSemaphoreIdentity } from '../zk/useSemaphoreIdentity'
@@ -11,7 +11,7 @@ import { fetchGroupMembers, checkMembership } from '../zk/groupMembersFetcher'
 import ZkVoteProgressModal from './ZkVoteProgressModal'
 import { voteStyles } from './voteStyles'
 
-const PROPOSAL_ID = 1
+const PROPOSAL_ID = 4
 
 const extraStyles: Record<string, React.CSSProperties> = {
   zkDifferenceCard: {
@@ -56,8 +56,8 @@ export default function ZKChainVote() {
   const { state: flowState, steps, start, reset } = useZkVotingFlow()
 
   const { data: title } = useReadContract({
-    address: SIMPLE_VOTING_V4_ADDRESS,
-    abi: SimpleVotingV4ABI,
+    address: SIMPLE_VOTING_V5_ADDRESS,
+    abi: SimpleVotingV5ABI,
     functionName: 'getProposalTitle',
     args: [BigInt(PROPOSAL_ID)],
   })
@@ -67,15 +67,15 @@ export default function ZKChainVote() {
     refetch: refetchOptions,
     isPending: isOptionsLoading,
   } = useReadContract({
-    address: SIMPLE_VOTING_V4_ADDRESS,
-    abi: SimpleVotingV4ABI,
+    address: SIMPLE_VOTING_V5_ADDRESS,
+    abi: SimpleVotingV5ABI,
     functionName: 'getOptions',
     args: [BigInt(PROPOSAL_ID)],
   })
 
   const { data: isActive } = useReadContract({
-    address: SIMPLE_VOTING_V4_ADDRESS,
-    abi: SimpleVotingV4ABI,
+    address: SIMPLE_VOTING_V5_ADDRESS,
+    abi: SimpleVotingV5ABI,
     functionName: 'getProposalStatus',
     args: [BigInt(PROPOSAL_ID)],
   })
@@ -117,26 +117,43 @@ export default function ZKChainVote() {
       })
   }, [commitment])
 
+  // 监听交易哈希变化，更新状态
   useEffect(() => {
+    // 只在流程运行时更新状态
+    if (flowState.status !== 'running') return
+
     if (flowState.txHashes.join) {
       setHasJoined(true)
     }
     if (flowState.txHashes.vote) {
       setHasVoted(true)
-      setSelectedOption(null)
+    }
+  }, [flowState.txHashes, flowState.status])
+
+  // 投票成功后刷新选项数据
+  useEffect(() => {
+    if (flowState.status === 'success' && flowState.txHashes.vote) {
       refetchOptions()
     }
-  }, [flowState.txHashes, refetchOptions])
+  }, [flowState.status, flowState.txHashes.vote, refetchOptions])
 
+  // 处理模态框关闭和状态重置
   useEffect(() => {
     if (flowState.status === 'success' || flowState.status === 'failed') {
       const timer = setTimeout(() => {
         setModalOpen(false)
-        reset()
-      }, 1500)
+        // 成功后不重置流程状态，避免页面重置
+        if (flowState.status === 'failed') {
+          reset()
+        }
+        // 投票成功后清空选项
+        if (flowState.status === 'success' && flowState.txHashes.vote) {
+          setSelectedOption(null)
+        }
+      }, 2000) // 延长到 2 秒，让用户看清楚成功信息
       return () => clearTimeout(timer)
     }
-  }, [flowState.status, reset])
+  }, [flowState.status, flowState.txHashes.vote, reset])
 
   const triggerFlow = useCallback(
     async (mode: 'full' | 'join-only') => {
@@ -391,7 +408,7 @@ export default function ZKChainVote() {
         {buttonCopy.label}
       </button>
 
-      {txHashToShow && (
+      {txHashToShow && !isModalOpen && (
         <div style={styles.txDetailContainer}>
           <div style={styles.successHeader}>
             <span style={styles.successIcon}>{txType === 'vote' ? '✅' : '📝'}</span>
@@ -409,7 +426,7 @@ export default function ZKChainVote() {
             </div>
             <div style={styles.txRow}>
               <span style={styles.txLabel}>To (合约地址):</span>
-              <code style={styles.txValue}>{SIMPLE_VOTING_V4_ADDRESS}</code>
+              <code style={styles.txValue}>{SIMPLE_VOTING_V5_ADDRESS}</code>
             </div>
             <div style={styles.txRow}>
               <span style={styles.txLabel}>Network:</span>

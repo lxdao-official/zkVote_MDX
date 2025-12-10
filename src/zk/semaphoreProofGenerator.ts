@@ -2,7 +2,7 @@
  * Semaphore 证明生成器
  *
  * 使用 @semaphore-protocol/proof 生成零知识证明
- * 完全兼容 SimpleVotingV4 合约
+ * 完全兼容 SimpleVotingV5 合约
  */
 
 import { Identity } from '@semaphore-protocol/identity'
@@ -10,7 +10,7 @@ import { Group } from '@semaphore-protocol/group'
 import { generateProof } from '@semaphore-protocol/proof'
 
 /**
- * Semaphore 证明输出（匹配 V4 合约参数）
+ * Semaphore 证明输出（匹配 V5 合约参数）
  */
 export type SemaphoreProofOutput = {
   merkleTreeDepth: bigint
@@ -32,16 +32,12 @@ export type ProofGenerationParams = {
 }
 
 /**
- * 验证器文件路径配置
+ * 计算最优 Merkle Tree 深度
  *
- * 注意：这些文件需要从 Semaphore 官方包中复制到 public/ 目录
- * 或使用 CDN 链接
- */
-const SEMAPHORE_FILES = {
-  wasmFile: 'https://unpkg.com/@semaphore-protocol/proof@4.0.3/artifacts/semaphore.wasm',
-  zkeyFile: 'https://unpkg.com/@semaphore-protocol/proof@4.0.3/artifacts/semaphore.zkey',
-}
-
+ * 根据成员数量选择合适的树深度：
+ * - 深度太小：无法容纳所有成员
+ * - 深度太大：证明生成速度变慢
+ *
 /**
  * 生成 Semaphore 零知识证明
  *
@@ -56,48 +52,111 @@ export async function generateSemaphoreProof(
 
     console.log('[generateSemaphoreProof] 开始生成证明', {
       identityCommitment: identity.commitment.toString(),
-      groupSize: groupMembers.length,
+      groupSize: groupMembers?.length || 0,
       proposalId,
       optionId,
     })
 
-    // 1. 构建 Semaphore Group (Merkle Tree)
-    const treeDepth = 20 // V4 合约使用的树深度
-    const group = new Group(proposalId, treeDepth)
+    // 验证参数
+    if (!groupMembers || !Array.isArray(groupMembers)) {
+      throw new Error('groupMembers 必须是一个数组')
+    }
 
-    // 添加所有成员
-    for (const member of groupMembers) {
-      group.addMember(member)
+    if (groupMembers.length === 0) {
+      throw new Error('群组成员列表为空，无法生成证明。请确保至少有一个成员已加入群组。')
+    }
+
+    // 验证当前用户是否在群组中
+    const userCommitment = identity.commitment
+    const isUserInGroup = groupMembers.some(member => member === userCommitment)
+    if (!isUserInGroup) {
+      console.error('[generateSemaphoreProof] 用户不在群组中', {
+        userCommitment: userCommitment.toString(),
+        groupMembers: groupMembers.map(m => m.toString()),
+      })
+      throw new Error('你的身份还未加入群组，请先点击"加入提案"按钮')
+    }
+
+    // 1. 构建 Semaphore Group (Merkle Tree)
+    // Semaphore v4.x Group 构造函数只接受成员列表，不需要 depth 参数
+    const group = new Group()
+
+    console.log('[generateSemaphoreProof] 开始添加成员到 Merkle Tree', {
+      totalMembers: groupMembers.length,
+    })
+
+    // 添加所有成员（验证每个成员值）
+    for (let i = 0; i < groupMembers.length; i++) {
+      const member = groupMembers[i]
+
+      // 验证成员值的有效性
+      if (member === null || member === undefined) {
+        console.error(`[generateSemaphoreProof] 成员 ${i} 值无效:`, member)
+        throw new Error(`群组成员 ${i} 的值无效`)
+      }
+
+      try {
+        group.addMember(member)
+        console.log(`[generateSemaphoreProof] 添加成员 ${i + 1}/${groupMembers.length}:`, member.toString())
+      } catch (error) {
+        console.error(`[generateSemaphoreProof] 添加成员 ${i} 失败:`, error)
+        throw new Error(`无法添加成员 ${i} 到 Merkle Tree: ${error instanceof Error ? error.message : String(error)}`)
+      }
     }
 
     console.log('[generateSemaphoreProof] Merkle Tree 构建完成', {
       root: group.root.toString(),
-      depth: treeDepth,
-      members: group.members.length,
+      depth: group.depth,
+      size: group.size,
     })
 
     // 2. 生成证明
     // message (signal) = optionId (投票选项)
     // scope = proposalId (提案 ID)
+    // merkleTreeDepth 由库自动根据 Merkle proof 推断
     const fullProof = await generateProof(
       identity,
       group,
       BigInt(optionId), // message/signal
-      BigInt(proposalId), // scope
-      {
-        wasmFilePath: SEMAPHORE_FILES.wasmFile,
-        zkeyFilePath: SEMAPHORE_FILES.zkeyFile,
-      }
+      BigInt(proposalId) // scope
     )
 
-    console.log('[generateSemaphoreProof] 证明生成成功', {
-      merkleTreeRoot: fullProof.merkleTreeRoot.toString(),
-      nullifier: fullProof.nullifier.toString(),
+    console.log('[generateSemaphoreProof] 证明生成成功')
+    console.log('[generateSemaphoreProof] fullProof 原始数据:', {
+      merkleTreeRoot: fullProof.merkleTreeRoot?.toString() || 'undefined',
+      nullifier: fullProof.nullifier?.toString() || 'undefined',
+      merkleTreeDepth: fullProof.merkleTreeDepth,
+      merkleTreeDepthType: typeof fullProof.merkleTreeDepth,
+      merkleTreeDepthKeys: fullProof.merkleTreeDepth ? Object.keys(fullProof.merkleTreeDepth) : 'N/A',
+      points: fullProof.points?.length || 'undefined',
     })
 
     // 3. 格式化为合约所需格式
+    // 注意：merkleTreeDepth 的类型处理
+    let merkleTreeDepth: bigint
+
+    if (typeof fullProof.merkleTreeDepth === 'number') {
+      merkleTreeDepth = BigInt(fullProof.merkleTreeDepth)
+    } else if (typeof fullProof.merkleTreeDepth === 'bigint') {
+      merkleTreeDepth = fullProof.merkleTreeDepth
+    } else if (typeof fullProof.merkleTreeDepth === 'object' && fullProof.merkleTreeDepth !== null) {
+      // 可能是包装对象，尝试提取值
+      const depthObj = fullProof.merkleTreeDepth as any
+      if ('value' in depthObj) {
+        merkleTreeDepth = BigInt(depthObj.value)
+      } else if ('_hex' in depthObj) {
+        // ethers.js BigNumber 格式
+        merkleTreeDepth = BigInt(depthObj._hex)
+      } else {
+        console.error('[generateSemaphoreProof] 无法解析 merkleTreeDepth:', depthObj)
+        throw new Error(`无法解析 merkleTreeDepth 对象: ${JSON.stringify(depthObj)}`)
+      }
+    } else {
+      throw new Error(`merkleTreeDepth 类型错误: ${typeof fullProof.merkleTreeDepth}`)
+    }
+
     const proofOutput: SemaphoreProofOutput = {
-      merkleTreeDepth: BigInt(fullProof.merkleTreeDepth),
+      merkleTreeDepth: merkleTreeDepth,
       merkleTreeRoot: fullProof.merkleTreeRoot,
       nullifier: fullProof.nullifier,
       message: BigInt(optionId),
@@ -105,16 +164,38 @@ export async function generateSemaphoreProof(
       points: fullProof.points as [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint],
     }
 
+    console.log('[generateSemaphoreProof] 证明输出格式化完成', {
+      merkleTreeDepth: proofOutput.merkleTreeDepth.toString(),
+      merkleTreeDepthType: typeof proofOutput.merkleTreeDepth,
+      merkleTreeRoot: proofOutput.merkleTreeRoot.toString(),
+      nullifier: proofOutput.nullifier.toString(),
+    })
+
     return proofOutput
   } catch (error) {
     console.error('[generateSemaphoreProof] 证明生成失败', error)
     if (error instanceof Error) {
+      // 网络错误
       if (error.message.includes('fetch') || error.message.includes('network')) {
         throw new Error('无法加载 Semaphore 证明文件，请检查网络连接')
       }
-      if (error.message.includes('not a member')) {
+      // 成员资格错误
+      if (error.message.includes('not a member') || error.message.includes('not in the group')) {
         throw new Error('身份未加入群组，请先调用 joinProposal')
       }
+      // 群组为空错误
+      if (error.message.includes('群组成员列表为空')) {
+        throw error // 直接抛出我们自定义的错误
+      }
+      // 参数错误
+      if (error.message.includes('必须是一个数组')) {
+        throw error
+      }
+      // 迭代错误 - 可能是 Semaphore 库版本问题
+      if (error.message.includes('not iterable')) {
+        throw new Error('证明生成失败：群组数据结构错误。请检查 Semaphore 库版本。')
+      }
+      // 其他错误
       throw new Error(`证明生成失败: ${error.message}`)
     }
     throw new Error('证明生成失败：未知错误')
@@ -156,7 +237,7 @@ export async function verifyProofLocally(proof: SemaphoreProofOutput): Promise<b
 /**
  * 从链上获取群组成员列表
  *
- * 注意：V4 合约使用 Semaphore 的 Group 管理
+ * 注意：V5 合约使用 Semaphore 的 Group 管理
  * 需要通过事件或专门的 getter 函数获取成员列表
  */
 export async function fetchGroupMembers(
