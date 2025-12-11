@@ -34,20 +34,12 @@ export async function fetchGroupMembers(proposalId: number): Promise<bigint[]> {
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      console.log('[fetchGroupMembers] 开始获取群组成员', { proposalId, attempt: attempt + 1 })
-
       // 获取当前区块号
       const latestBlock = await publicClient.getBlockNumber()
 
       // 优化：只查询最近的区块，而不是从部署区块开始
       const startBlock = latestBlock > RECENT_BLOCKS ? latestBlock - RECENT_BLOCKS : 0n
       const blockRange = latestBlock - startBlock
-
-      console.log('[fetchGroupMembers] 区块范围', {
-        from: startBlock.toString(),
-        to: latestBlock.toString(),
-        range: blockRange.toString(),
-      })
 
       // 只查询最近 5000 个区块，避免 RPC 限制
       const logs = await publicClient.getLogs({
@@ -59,8 +51,6 @@ export async function fetchGroupMembers(proposalId: number): Promise<bigint[]> {
         fromBlock: startBlock,
         toBlock: 'latest',
       })
-
-      console.log('[fetchGroupMembers] 获取到事件日志', { count: logs.length })
 
       // 提取 identityCommitment 并按区块号/日志索引排序（保证顺序一致）
       const members = logs
@@ -79,11 +69,6 @@ export async function fetchGroupMembers(proposalId: number): Promise<bigint[]> {
           return log.args.identityCommitment
         })
 
-      console.log('[fetchGroupMembers] 成员列表', {
-        count: members.length,
-        members: members.map(m => m.toString()),
-      })
-
       return members
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
@@ -92,7 +77,6 @@ export async function fetchGroupMembers(proposalId: number): Promise<bigint[]> {
       // 如果不是最后一次尝试，等待后重试
       if (attempt < maxRetries - 1) {
         const waitTime = 1000 * (attempt + 1) // 递增等待时间
-        console.log(`[fetchGroupMembers] 等待 ${waitTime}ms 后重试...`)
         await new Promise(resolve => setTimeout(resolve, waitTime))
       }
     }

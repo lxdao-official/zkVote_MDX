@@ -39,10 +39,6 @@ export function useSemaphoreIdentity() {
         const data = JSON.parse(stored)
         const identity = new Identity(data.privateKey)
 
-        console.log('[useSemaphoreIdentity] 已加载身份', {
-          commitment: identity.commitment.toString(),
-        })
-
         setState({
           identity,
           commitment: identity.commitment,
@@ -74,10 +70,6 @@ export function useSemaphoreIdentity() {
         createdAt: Date.now(),
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-
-      console.log('[useSemaphoreIdentity] 已生成新身份', {
-        commitment: identity.commitment.toString(),
-      })
 
       setState({
         identity,
@@ -112,7 +104,6 @@ export function useSemaphoreIdentity() {
       commitment: null,
       isReady: true,
     })
-    console.log('[useSemaphoreIdentity] 已清除身份')
   }, [])
 
   /**
@@ -146,10 +137,6 @@ export function useSemaphoreIdentity() {
         identity,
         commitment: identity.commitment,
         isReady: true,
-      })
-
-      console.log('[useSemaphoreIdentity] 已导入身份', {
-        commitment: identity.commitment.toString(),
       })
 
       return identity.commitment

@@ -117,7 +117,7 @@ export const voteStyles: Record<string, React.CSSProperties> = {
     transition: 'all var(--transition-normal) ease',
   },
   optionCardSelected: {
-    borderColor: 'var(--primary-blue)',
+    border: '3px solid var(--primary-blue)',
     backgroundColor: 'var(--primary-blue-light)',
     transform: 'translateY(-2px)',
     boxShadow: 'var(--shadow-level-2)',
@@ -146,7 +146,7 @@ export const voteStyles: Record<string, React.CSSProperties> = {
     flexShrink: 0,
   },
   radioSelected: {
-    borderColor: 'var(--primary-blue)',
+    border: '3px solid var(--primary-blue)',
     backgroundColor: 'var(--primary-blue)',
     boxShadow: 'inset 0 0 0 3px white',
   },
@@ -190,7 +190,7 @@ export const voteStyles: Record<string, React.CSSProperties> = {
   voteButtonDisabled: {
     backgroundColor: 'var(--neutral-200)',
     color: 'var(--neutral-400)',
-    borderColor: 'var(--neutral-300)',
+    border: '3px solid var(--neutral-300)',
     cursor: 'not-allowed',
     boxShadow: 'none',
   },

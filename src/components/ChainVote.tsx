@@ -66,7 +66,6 @@ export default function ChainVote() {
         if (option) {
             setVotedOptionName(option.name);
         }
-        console.log(selectedOption);
         writeContract({
             address: SIMPLEVOTE_ADDRESS,
             abi: SIMPLEVOTE_ABI,

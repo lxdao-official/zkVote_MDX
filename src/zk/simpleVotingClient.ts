@@ -5,12 +5,6 @@ import type { SemaphoreProofOutput } from './semaphoreProofGenerator'
 
 const zkVoteAddress = import.meta.env.VITE_ZK_VOTE_PROXY as `0x${string}`
 
-// 🔍 DEBUG: 在模块加载时立即输出合约地址
-console.log('=== 🔍 SimpleVotingClient 模块加载 ===')
-console.log('[模块] VITE_ZK_VOTE_PROXY:', import.meta.env.VITE_ZK_VOTE_PROXY)
-console.log('[模块] zkVoteAddress:', zkVoteAddress)
-console.log('[模块] 环境变量对象:', import.meta.env)
-
 export const SIMPLE_VOTING_V5_ADDRESS = zkVoteAddress
 
 export type SimpleVotingOption = {
@@ -75,18 +69,6 @@ export async function submitZkVote(
   optionId: number,
   proof: SemaphoreProofOutput
 ) {
-  console.log('[submitZkVote] 收到的 proof 参数:', {
-    proposalId,
-    optionId,
-    merkleTreeDepth: proof.merkleTreeDepth,
-    merkleTreeDepthType: typeof proof.merkleTreeDepth,
-    merkleTreeRoot: proof.merkleTreeRoot?.toString(),
-    nullifier: proof.nullifier?.toString(),
-    message: proof.message?.toString(),
-    scope: proof.scope?.toString(),
-    pointsLength: proof.points?.length,
-  })
-
   // 确保所有字段都是正确的 bigint 类型
   const semaphoreProof = {
     merkleTreeDepth: typeof proof.merkleTreeDepth === 'bigint'
@@ -98,19 +80,6 @@ export async function submitZkVote(
     scope: proof.scope,
     points: proof.points  // 必须是完整的 [bigint, bigint, ...] 数组
   }
-
-  console.log('[submitZkVote] 准备提交的参数 (viem会自动编码):', {
-    proposalId,
-    optionId,
-    semaphoreProof: {
-      merkleTreeDepth: semaphoreProof.merkleTreeDepth.toString(),
-      merkleTreeRoot: semaphoreProof.merkleTreeRoot.toString(),
-      nullifier: semaphoreProof.nullifier.toString(),
-      message: semaphoreProof.message.toString(),
-      scope: semaphoreProof.scope.toString(),
-      points: semaphoreProof.points.map(p => p.toString()),
-    }
-  })
 
   return writeContract(wagmiConfig, {
     abi: SimpleVotingV6ABI,

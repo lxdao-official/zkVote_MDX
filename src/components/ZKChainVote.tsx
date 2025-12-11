@@ -81,40 +81,6 @@ export default function ZKChainVote() {
     args: [BigInt(PROPOSAL_ID)],
   })
 
-  // 🔍 DEBUG: 合约地址和数据加载状态日志
-  useEffect(() => {
-    console.log('=== 🔍 ZKChainVote 合约配置调试 ===')
-    console.log('[配置] 合约地址:', SIMPLE_VOTING_V5_ADDRESS)
-    console.log('[配置] 提案ID:', PROPOSAL_ID)
-    console.log('[配置] Chain ID:', chainId)
-    console.log('[配置] 用户地址:', address)
-  }, [chainId, address])
-
-  useEffect(() => {
-    console.log('=== 📊 提案标题加载状态 ===')
-    console.log('[标题] isLoading:', isTitleLoading)
-    console.log('[标题] data:', title)
-    console.log('[标题] error:', titleError)
-  }, [title, titleError, isTitleLoading])
-
-  useEffect(() => {
-    console.log('=== 📊 投票选项加载状态 ===')
-    console.log('[选项] isLoading:', isOptionsLoading)
-    console.log('[选项] data:', optionsData)
-    console.log('[选项] error:', optionsError)
-    if (optionsData) {
-      console.log('[选项] 选项数量:', (optionsData as any[]).length)
-      console.log('[选项] 详细内容:', JSON.stringify(optionsData, (_, v) => typeof v === 'bigint' ? v.toString() : v, 2))
-    }
-  }, [optionsData, optionsError, isOptionsLoading])
-
-  useEffect(() => {
-    console.log('=== 📊 提案状态加载 ===')
-    console.log('[状态] isLoading:', isStatusLoading)
-    console.log('[状态] isActive:', isActive)
-    console.log('[状态] error:', statusError)
-  }, [isActive, statusError, isStatusLoading])
-
   const options = (optionsData as SimpleVotingOption[]) ?? []
   const totalVotes = options.reduce((sum, opt) => sum + Number(opt.voteCount), 0)
   const isEnded = !isActive // V4: 使用 isActive 状态
@@ -131,29 +97,14 @@ export default function ZKChainVote() {
 
   // 检查用户是否已经加入群组
   useEffect(() => {
-    console.log('=== 🔍 成员资格检查触发 ===')
-    console.log('[成员检查] commitment 存在:', !!commitment)
-    console.log('[成员检查] commitment 值:', commitment?.toString())
-
     if (!commitment) {
-      console.log('[成员检查] ⏭️ 跳过检查: commitment 不存在')
       return
     }
 
-    console.log('[成员检查] 🚀 开始检查成员资格...')
     setIsCheckingMembership(true)
     checkMembership(PROPOSAL_ID, commitment)
       .then((isMember) => {
-        console.log('[成员检查] ✅ 检查完成')
-        console.log('[成员检查] 提案ID:', PROPOSAL_ID)
-        console.log('[成员检查] 是否成员:', isMember)
-        console.log('[成员检查] commitment:', commitment.toString())
         setHasJoined(isMember)
-        if (isMember) {
-          console.log('[成员检查] ✅ 用户已加入提案，可以直接投票')
-        } else {
-          console.log('[成员检查] ❌ 用户未加入提案，需要先加入')
-        }
       })
       .catch((error) => {
         console.error('[成员检查] ❌ 成员资格检查失败')
@@ -164,7 +115,6 @@ export default function ZKChainVote() {
         setHasJoined(false)
       })
       .finally(() => {
-        console.log('[成员检查] 🏁 检查流程结束')
         setIsCheckingMembership(false)
       })
   }, [commitment])
@@ -222,28 +172,12 @@ export default function ZKChainVote() {
         return
       }
 
-      // 🔍 DEBUG: 记录即将使用的 commitment 值
-      console.log('=== DEBUG: 准备加入/投票 ===')
-      console.log('[DEBUG] 模式:', mode)
-      console.log('[DEBUG] 用户地址:', address)
-      console.log('[DEBUG] Commitment 值:', commitment.toString())
-      console.log('[DEBUG] hasJoined 状态:', hasJoined)
-      console.log('[DEBUG] 是否需要先加入:', !hasJoined)
-
       // 获取群组成员（仅在完整投票模式下需要）
       let groupMembers: bigint[] = []
       if (mode === 'full') {
         try {
-          console.log('[ZKChainVote] 开始获取群组成员...')
           groupMembers = await fetchGroupMembers(PROPOSAL_ID)
-          console.log('[ZKChainVote] 群组成员获取成功', { count: groupMembers.length })
-
-          // 🔍 DEBUG: 检查用户是否在群组中
           const isUserInGroup = groupMembers.some(m => m === commitment)
-          console.log('[DEBUG] 用户是否在群组成员列表中:', isUserInGroup)
-          if (isUserInGroup) {
-            console.log('[DEBUG] ⚠️ 警告: 用户已在群组中，但 hasJoined=', hasJoined)
-          }
 
           if (groupMembers.length === 0) {
             alert('群组暂无成员，请先有人加入提案')
@@ -277,12 +211,11 @@ export default function ZKChainVote() {
     if (selectedOption === null) return { label: '请先选择选项', disabled: true }
     if (isCheckingMembership) return { label: '检查成员资格...', disabled: true }
     if (!identity || !commitment) return { label: '生成匿名身份', disabled: false, action: ensureIdentity }
-    if (hasVoted) return { label: '✓ 已投票', disabled: true }
     if (!hasJoined) {
       return { label: '先加入提案（可稍后投票）', disabled: false, action: () => triggerFlow('join-only') }
     }
     return {
-      label: '立即提交 ZK 投票',
+      label: hasVoted ? '再投一票 (ZK)' : '立即提交 ZK 投票',
       disabled: false,
       action: () => triggerFlow('full'),
     }
@@ -329,7 +262,7 @@ export default function ZKChainVote() {
         <div style={styles.dataBreakdown}>
           <div style={styles.dataItem}>
             <code style={styles.dataSelector}>nullifierHash</code>
-            <span style={styles.dataExplain}>防重复投票标识 (Poseidon(address, proposalId))</span>
+            <span style={styles.dataExplain}>防重复投票标识（匿名身份 + 提案ID + 随机 voteNonce）</span>
           </div>
           <div style={styles.dataItem}>
             <code style={styles.dataSelector}>voteCommitment</code>
@@ -416,7 +349,6 @@ export default function ZKChainVote() {
                     ...(isSelected ? styles.optionCardSelected : {}),
                   }}
                   onClick={() => {
-                    if (hasVoted) return
                     setSelectedOption(Number(option.id))
                   }}
                 >
@@ -459,6 +391,12 @@ export default function ZKChainVote() {
       >
         {buttonCopy.label}
       </button>
+
+      {hasVoted && (
+        <p style={{ marginTop: '0.75rem', color: 'var(--neutral-600)', fontSize: '0.9rem' }}>
+          ✅ 你已经完成一次匿名投票。想继续表达意见？随时再投一票，系统会为每次投票生成全新的 nullifier。
+        </p>
+      )}
 
       {txHashToShow && !isModalOpen && (
         <div style={styles.txDetailContainer}>

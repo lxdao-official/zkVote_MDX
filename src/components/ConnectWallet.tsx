@@ -165,11 +165,11 @@ export default function ConnectWallet() {
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = 'var(--neutral-100)'
-                    e.currentTarget.style.borderColor = 'var(--neutral-400)'
+                    e.currentTarget.style.border = '2px solid var(--neutral-400)'
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = 'var(--neutral-white)'
-                    e.currentTarget.style.borderColor = 'var(--neutral-300)'
+                    e.currentTarget.style.border = '2px solid var(--neutral-300)'
                   }}
                 >
                   ×

@@ -20,7 +20,6 @@ export type VotingFlowStatus = 'idle' | 'running' | 'success' | 'failed'
 
 export type VotingErrorType =
   | 'ProposalExpired'
-  | 'AlreadyVoted'
   | 'NotJoined'
   | 'InsufficientGas'
   | 'NetworkError'
@@ -85,7 +84,6 @@ const mapErrorToType = (err: unknown): VotingErrorType => {
   if (/user rejected/i.test(message)) return 'UserRejected'
   if (/insufficient/i.test(message) || /gas/i.test(message)) return 'InsufficientGas'
   if (/expired/i.test(message) || /Voting ended/i.test(message)) return 'ProposalExpired'
-  if (/already voted/i.test(message) || /nullifier/i.test(message)) return 'AlreadyVoted'
   if (/proof/i.test(message)) return 'ProofFailed'
   return 'NetworkError'
 }
@@ -168,10 +166,6 @@ export function useZkVotingFlow() {
             optionId,
           })
 
-          console.log('[useZkVotingFlow] Semaphore 证明生成完成', {
-            nullifier: proofOutput.nullifier.toString(),
-            merkleTreeRoot: proofOutput.merkleTreeRoot.toString(),
-          })
         }
 
         // 步骤 4: 提交投票

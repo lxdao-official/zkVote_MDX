@@ -9,6 +9,28 @@ import { Identity } from '@semaphore-protocol/identity'
 import { Group } from '@semaphore-protocol/group'
 import { generateProof } from '@semaphore-protocol/proof'
 
+const VOTE_NONCE_BITS = 128n
+const VOTE_NONCE_BYTES = Number(VOTE_NONCE_BITS / 8n)
+const VOTE_NONCE_MASK = (1n << VOTE_NONCE_BITS) - 1n
+
+function getCrypto(): Crypto {
+  if (typeof globalThis !== 'undefined' && globalThis.crypto) {
+    return globalThis.crypto
+  }
+  throw new Error('Crypto API not available: secure randomness is required for ZK voting')
+}
+
+function generateRandomVoteNonce(): bigint {
+  const array = new Uint8Array(VOTE_NONCE_BYTES)
+  getCrypto().getRandomValues(array)
+
+  return array.reduce<bigint>((acc, byte) => (acc << 8n) | BigInt(byte), 0n)
+}
+
+function buildExternalNullifier(proposalId: bigint, voteNonce: bigint): bigint {
+  return (proposalId << VOTE_NONCE_BITS) | (voteNonce & VOTE_NONCE_MASK)
+}
+
 /**
  * Semaphore 证明输出（匹配 V5 合约参数）
  */
@@ -17,7 +39,7 @@ export type SemaphoreProofOutput = {
   merkleTreeRoot: bigint
   nullifier: bigint
   message: bigint // signal (投票选项)
-  scope: bigint // proposalId
+  scope: bigint // external nullifier (proposalId + voteNonce)
   points: [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint]
 }
 
@@ -50,13 +72,6 @@ export async function generateSemaphoreProof(
   try {
     const { identity, groupMembers, proposalId, optionId } = params
 
-    console.log('[generateSemaphoreProof] 开始生成证明', {
-      identityCommitment: identity.commitment.toString(),
-      groupSize: groupMembers?.length || 0,
-      proposalId,
-      optionId,
-    })
-
     // 验证参数
     if (!groupMembers || !Array.isArray(groupMembers)) {
       throw new Error('groupMembers 必须是一个数组')
@@ -81,10 +96,6 @@ export async function generateSemaphoreProof(
     // Semaphore v4.x Group 构造函数只接受成员列表，不需要 depth 参数
     const group = new Group()
 
-    console.log('[generateSemaphoreProof] 开始添加成员到 Merkle Tree', {
-      totalMembers: groupMembers.length,
-    })
-
     // 添加所有成员（验证每个成员值）
     for (let i = 0; i < groupMembers.length; i++) {
       const member = groupMembers[i]
@@ -97,42 +108,26 @@ export async function generateSemaphoreProof(
 
       try {
         group.addMember(member)
-        console.log(`[generateSemaphoreProof] 添加成员 ${i + 1}/${groupMembers.length}:`, member.toString())
       } catch (error) {
         console.error(`[generateSemaphoreProof] 添加成员 ${i} 失败:`, error)
         throw new Error(`无法添加成员 ${i} 到 Merkle Tree: ${error instanceof Error ? error.message : String(error)}`)
       }
     }
 
-    console.log('[generateSemaphoreProof] Merkle Tree 构建完成', {
-      root: group.root.toString(),
-      depth: group.depth,
-      size: group.size,
-    })
+    // 2. 生成随机 voteNonce 并构造新的 external nullifier
+    const voteNonce = generateRandomVoteNonce()
+    const externalNullifier = buildExternalNullifier(BigInt(proposalId), voteNonce)
 
-    // 2. 生成证明
+    // 3. 生成证明
     // message (signal) = optionId (投票选项)
-    // scope = proposalId (提案 ID)
+    // scope = externalNullifier (绑定提案 + 随机 nonce)
     // merkleTreeDepth 由库自动根据 Merkle proof 推断
     const fullProof = await generateProof(
       identity,
       group,
       BigInt(optionId), // message/signal
-      BigInt(proposalId) // scope
+      externalNullifier // scope/external nullifier
     )
-
-    console.log('[generateSemaphoreProof] 证明生成成功')
-    console.log('[generateSemaphoreProof] fullProof 原始数据:', {
-      merkleTreeRoot: fullProof.merkleTreeRoot?.toString() || 'undefined',
-      nullifier: fullProof.nullifier?.toString() || 'undefined',
-      merkleTreeDepth: fullProof.merkleTreeDepth,
-      merkleTreeDepthType: typeof fullProof.merkleTreeDepth,
-      merkleTreeDepthKeys: fullProof.merkleTreeDepth ? Object.keys(fullProof.merkleTreeDepth) : 'N/A',
-      points: fullProof.points?.length || 'undefined',
-      groupDepthForReference: group.depth, // 对比:Group的depth
-      message: fullProof.message?.toString() || 'undefined',
-      scope: fullProof.scope?.toString() || 'undefined',
-    })
 
     // 3. 格式化为合约所需格式
     // 注意：merkleTreeDepth 的类型处理
@@ -163,16 +158,9 @@ export async function generateSemaphoreProof(
       merkleTreeRoot: fullProof.merkleTreeRoot,
       nullifier: fullProof.nullifier,
       message: BigInt(optionId),
-      scope: BigInt(proposalId),
+      scope: externalNullifier,
       points: fullProof.points as [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint],
     }
-
-    console.log('[generateSemaphoreProof] 证明输出格式化完成', {
-      merkleTreeDepth: proofOutput.merkleTreeDepth.toString(),
-      merkleTreeDepthType: typeof proofOutput.merkleTreeDepth,
-      merkleTreeRoot: proofOutput.merkleTreeRoot.toString(),
-      nullifier: proofOutput.nullifier.toString(),
-    })
 
     return proofOutput
   } catch (error) {
@@ -215,16 +203,6 @@ export async function verifyProofLocally(proof: SemaphoreProofOutput): Promise<b
   try {
     // Semaphore SDK 提供了验证功能
     // 这里简化处理，实际验证在链上进行
-    console.log('[verifyProofLocally] 证明格式验证', {
-      hasAllFields: !!(
-        proof.merkleTreeDepth &&
-        proof.merkleTreeRoot &&
-        proof.nullifier &&
-        proof.points &&
-        proof.points.length === 8
-      ),
-    })
-
     return (
       proof.points.length === 8 &&
       proof.merkleTreeDepth > 0n &&
@@ -253,8 +231,6 @@ export async function fetchGroupMembers(
     // 方法 3: 使用合约的 getMembers 函数（如果有）
 
     // 这里需要根据实际合约实现调整
-    console.log('[fetchGroupMembers] 获取群组成员', { proposalId })
-
     // 临时实现：返回空数组（需要根据实际情况实现）
     console.warn('[fetchGroupMembers] 需要实现群组成员获取逻辑')
     return []
@@ -271,7 +247,6 @@ export async function fetchGroupMembers(
  */
 export async function downloadSemaphoreFiles(): Promise<void> {
   try {
-    console.log('[downloadSemaphoreFiles] 开始下载 Semaphore 证明文件...')
 
     const files = [
       { url: SEMAPHORE_FILES.wasmFile, name: 'semaphore.wasm' },
@@ -283,10 +258,8 @@ export async function downloadSemaphoreFiles(): Promise<void> {
       if (!response.ok) {
         throw new Error(`Failed to download ${file.name}`)
       }
-      console.log(`[downloadSemaphoreFiles] ✓ ${file.name}`)
     }
 
-    console.log('[downloadSemaphoreFiles] 所有文件准备就绪')
   } catch (error) {
     console.error('[downloadSemaphoreFiles] 下载失败', error)
     throw error

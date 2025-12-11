@@ -146,7 +146,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   lxdaoCard: {
     backgroundColor: 'var(--accent-yellow-light)',
-    borderColor: 'var(--accent-yellow-dark)',
+    border: '3px solid var(--accent-yellow-dark)',
   },
   iconCircle: {
     width: '48px',

@@ -18,7 +18,6 @@ const STEP_COPY: StepContent[] = [
 
 const ERROR_COPY: Record<string, { title: string; action: string }> = {
   ProposalExpired: { title: '投票已结束', action: '返回详情页' },
-  AlreadyVoted: { title: '无法重复投票', action: '查看投票结果' },
   NotJoined: { title: '尚未加入提案', action: '重新加入' },
   InsufficientGas: { title: 'Gas 余额不足', action: '获取测试币后重试' },
   NetworkError: { title: '网络连接异常', action: '检查网络后重试' },
