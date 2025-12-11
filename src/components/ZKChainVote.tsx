@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAccount, useChainId, useReadContract } from 'wagmi'
-import SimpleVotingV5ABI from '../abi/SimpleVotingV5.json'
+import SimpleVotingV6ABI from '../abi/SimpleVotingV6.json'
 import {
   SIMPLE_VOTING_V5_ADDRESS,
   type SimpleVotingOption,
@@ -11,7 +11,7 @@ import { fetchGroupMembers, checkMembership } from '../zk/groupMembersFetcher'
 import ZkVoteProgressModal from './ZkVoteProgressModal'
 import { voteStyles } from './voteStyles'
 
-const PROPOSAL_ID = 4
+const PROPOSAL_ID = 1
 
 const extraStyles: Record<string, React.CSSProperties> = {
   zkDifferenceCard: {
@@ -55,9 +55,9 @@ export default function ZKChainVote() {
 
   const { state: flowState, steps, start, reset } = useZkVotingFlow()
 
-  const { data: title } = useReadContract({
+  const { data: title, error: titleError, isLoading: isTitleLoading } = useReadContract({
     address: SIMPLE_VOTING_V5_ADDRESS,
-    abi: SimpleVotingV5ABI,
+    abi: SimpleVotingV6ABI,
     functionName: 'getProposalTitle',
     args: [BigInt(PROPOSAL_ID)],
   })
@@ -66,19 +66,54 @@ export default function ZKChainVote() {
     data: optionsData,
     refetch: refetchOptions,
     isPending: isOptionsLoading,
+    error: optionsError,
   } = useReadContract({
     address: SIMPLE_VOTING_V5_ADDRESS,
-    abi: SimpleVotingV5ABI,
+    abi: SimpleVotingV6ABI,
     functionName: 'getOptions',
     args: [BigInt(PROPOSAL_ID)],
   })
 
-  const { data: isActive } = useReadContract({
+  const { data: isActive, error: statusError, isLoading: isStatusLoading } = useReadContract({
     address: SIMPLE_VOTING_V5_ADDRESS,
-    abi: SimpleVotingV5ABI,
+    abi: SimpleVotingV6ABI,
     functionName: 'getProposalStatus',
     args: [BigInt(PROPOSAL_ID)],
   })
+
+  // 🔍 DEBUG: 合约地址和数据加载状态日志
+  useEffect(() => {
+    console.log('=== 🔍 ZKChainVote 合约配置调试 ===')
+    console.log('[配置] 合约地址:', SIMPLE_VOTING_V5_ADDRESS)
+    console.log('[配置] 提案ID:', PROPOSAL_ID)
+    console.log('[配置] Chain ID:', chainId)
+    console.log('[配置] 用户地址:', address)
+  }, [chainId, address])
+
+  useEffect(() => {
+    console.log('=== 📊 提案标题加载状态 ===')
+    console.log('[标题] isLoading:', isTitleLoading)
+    console.log('[标题] data:', title)
+    console.log('[标题] error:', titleError)
+  }, [title, titleError, isTitleLoading])
+
+  useEffect(() => {
+    console.log('=== 📊 投票选项加载状态 ===')
+    console.log('[选项] isLoading:', isOptionsLoading)
+    console.log('[选项] data:', optionsData)
+    console.log('[选项] error:', optionsError)
+    if (optionsData) {
+      console.log('[选项] 选项数量:', (optionsData as any[]).length)
+      console.log('[选项] 详细内容:', JSON.stringify(optionsData, (_, v) => typeof v === 'bigint' ? v.toString() : v, 2))
+    }
+  }, [optionsData, optionsError, isOptionsLoading])
+
+  useEffect(() => {
+    console.log('=== 📊 提案状态加载 ===')
+    console.log('[状态] isLoading:', isStatusLoading)
+    console.log('[状态] isActive:', isActive)
+    console.log('[状态] error:', statusError)
+  }, [isActive, statusError, isStatusLoading])
 
   const options = (optionsData as SimpleVotingOption[]) ?? []
   const totalVotes = options.reduce((sum, opt) => sum + Number(opt.voteCount), 0)
@@ -96,23 +131,40 @@ export default function ZKChainVote() {
 
   // 检查用户是否已经加入群组
   useEffect(() => {
-    if (!commitment) return
+    console.log('=== 🔍 成员资格检查触发 ===')
+    console.log('[成员检查] commitment 存在:', !!commitment)
+    console.log('[成员检查] commitment 值:', commitment?.toString())
 
+    if (!commitment) {
+      console.log('[成员检查] ⏭️ 跳过检查: commitment 不存在')
+      return
+    }
+
+    console.log('[成员检查] 🚀 开始检查成员资格...')
     setIsCheckingMembership(true)
     checkMembership(PROPOSAL_ID, commitment)
       .then((isMember) => {
+        console.log('[成员检查] ✅ 检查完成')
+        console.log('[成员检查] 提案ID:', PROPOSAL_ID)
+        console.log('[成员检查] 是否成员:', isMember)
+        console.log('[成员检查] commitment:', commitment.toString())
         setHasJoined(isMember)
-        console.log('[ZKChainVote] 成员资格检查', { isMember, commitment: commitment.toString() })
         if (isMember) {
-          console.log('[ZKChainVote] ✅ 用户已加入提案，可以直接投票')
+          console.log('[成员检查] ✅ 用户已加入提案，可以直接投票')
+        } else {
+          console.log('[成员检查] ❌ 用户未加入提案，需要先加入')
         }
       })
       .catch((error) => {
-        console.error('[ZKChainVote] 成员资格检查失败', error)
+        console.error('[成员检查] ❌ 成员资格检查失败')
+        console.error('[成员检查] 错误详情:', error)
+        console.error('[成员检查] 错误消息:', error?.message)
+        console.error('[成员检查] 错误栈:', error?.stack)
         // 检查失败时默认为未加入
         setHasJoined(false)
       })
       .finally(() => {
+        console.log('[成员检查] 🏁 检查流程结束')
         setIsCheckingMembership(false)
       })
   }, [commitment])

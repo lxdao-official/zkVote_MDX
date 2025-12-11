@@ -1,9 +1,15 @@
 import { readContract, writeContract } from 'wagmi/actions'
-import SimpleVotingV5ABI from '../abi/SimpleVotingV5.json'
+import SimpleVotingV6ABI from '../abi/SimpleVotingV6.json'
 import { wagmiConfig } from '../wagmiConfig'
 import type { SemaphoreProofOutput } from './semaphoreProofGenerator'
 
 const zkVoteAddress = import.meta.env.VITE_ZK_VOTE_PROXY as `0x${string}`
+
+// 🔍 DEBUG: 在模块加载时立即输出合约地址
+console.log('=== 🔍 SimpleVotingClient 模块加载 ===')
+console.log('[模块] VITE_ZK_VOTE_PROXY:', import.meta.env.VITE_ZK_VOTE_PROXY)
+console.log('[模块] zkVoteAddress:', zkVoteAddress)
+console.log('[模块] 环境变量对象:', import.meta.env)
 
 export const SIMPLE_VOTING_V5_ADDRESS = zkVoteAddress
 
@@ -25,7 +31,7 @@ export type ProposalInfo = {
 export async function fetchProposal(proposalId: number): Promise<ProposalInfo> {
   // V5: 使用 getProposalInfo 一次性获取所有信息
   const result = await readContract(wagmiConfig, {
-    abi: SimpleVotingV5ABI,
+    abi: SimpleVotingV6ABI,
     address: SIMPLE_VOTING_V5_ADDRESS,
     functionName: 'getProposalInfo',
     args: [BigInt(proposalId)],
@@ -45,7 +51,7 @@ export async function fetchProposal(proposalId: number): Promise<ProposalInfo> {
 
 export async function fetchOptions(proposalId: number): Promise<SimpleVotingOption[]> {
   const options = (await readContract(wagmiConfig, {
-    abi: SimpleVotingV5ABI,
+    abi: SimpleVotingV6ABI,
     address: SIMPLE_VOTING_V5_ADDRESS,
     functionName: 'getOptions',
     args: [BigInt(proposalId)],
@@ -56,7 +62,7 @@ export async function fetchOptions(proposalId: number): Promise<SimpleVotingOpti
 
 export async function joinProposal(proposalId: number, identityCommitment: bigint) {
   return writeContract(wagmiConfig, {
-    abi: SimpleVotingV5ABI,
+    abi: SimpleVotingV6ABI,
     address: SIMPLE_VOTING_V5_ADDRESS,
     functionName: 'joinProposal',
     args: [BigInt(proposalId), identityCommitment],
@@ -77,6 +83,8 @@ export async function submitZkVote(
     merkleTreeDepthToString: proof.merkleTreeDepth?.toString(),
     merkleTreeRoot: proof.merkleTreeRoot?.toString(),
     nullifier: proof.nullifier?.toString(),
+    message: proof.message?.toString(),
+    scope: proof.scope?.toString(),
     pointsLength: proof.points?.length,
   })
 
@@ -88,23 +96,31 @@ export async function submitZkVote(
   console.log('[submitZkVote] 准备提交的参数:', {
     proposalId: BigInt(proposalId).toString(),
     optionId: BigInt(optionId).toString(),
-    merkleTreeDepth: merkleTreeDepth.toString(),
-    merkleTreeDepthType: typeof merkleTreeDepth,
-    merkleTreeRoot: proof.merkleTreeRoot.toString(),
-    nullifier: proof.nullifier.toString(),
+    semaphoreProof: {
+      merkleTreeDepth: merkleTreeDepth.toString(),
+      merkleTreeRoot: proof.merkleTreeRoot.toString(),
+      nullifier: proof.nullifier.toString(),
+      message: proof.message.toString(),
+      scope: proof.scope.toString(),
+      pointsLength: proof.points.length,
+    }
   })
 
   return writeContract(wagmiConfig, {
-    abi: SimpleVotingV5ABI,
+    abi: SimpleVotingV6ABI,
     address: SIMPLE_VOTING_V5_ADDRESS,
     functionName: 'vote',
     args: [
       BigInt(proposalId),
       BigInt(optionId),
-      merkleTreeDepth,
-      proof.merkleTreeRoot,
-      proof.nullifier,
-      proof.points,
+      {
+        merkleTreeDepth: merkleTreeDepth,
+        merkleTreeRoot: proof.merkleTreeRoot,
+        nullifier: proof.nullifier,
+        message: proof.message,
+        scope: proof.scope,
+        points: proof.points
+      }
     ],
     gas: 800000n, // ZK 证明验证需要较多 gas
   })
