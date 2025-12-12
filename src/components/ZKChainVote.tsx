@@ -176,19 +176,40 @@ export default function ZKChainVote() {
       let groupMembers: bigint[] = []
       if (mode === 'full') {
         try {
+          console.log('========== 🔍 [步骤 1/5] 获取群组成员列表 ==========')
+          console.log('[ZKChainVote] 开始获取 Proposal ID:', PROPOSAL_ID)
+          console.log('[ZKChainVote] 用户 commitment:', commitment?.toString())
+
           groupMembers = await fetchGroupMembers(PROPOSAL_ID)
+
+          console.log('[ZKChainVote] ✅ 成功获取成员列表')
+          console.log('[ZKChainVote] 成员数量:', groupMembers.length)
+          console.log('[ZKChainVote] 成员列表:', groupMembers.map(m => m.toString()))
+
           const isUserInGroup = groupMembers.some(m => m === commitment)
+          console.log('[ZKChainVote] 用户是否在群组中:', isUserInGroup)
 
           if (groupMembers.length === 0) {
+            console.error('[ZKChainVote] ❌ 群组成员列表为空')
             alert('群组暂无成员，请先有人加入提案')
             return
           }
         } catch (error) {
-          console.error('[ZKChainVote] 获取群组成员失败', error)
+          console.error('[ZKChainVote] ❌ 获取群组成员失败', error)
           alert('无法获取群组信息，请稍后重试')
           return
         }
       }
+
+      console.log('========== 🚀 [步骤 2/5] 启动投票流程 ==========')
+      console.log('[ZKChainVote] 流程参数:', {
+        requiresJoin: !hasJoined,
+        proposalId: PROPOSAL_ID,
+        optionId: selectedOption,
+        voterAddress: address,
+        groupMembersCount: groupMembers.length,
+        mode,
+      })
 
       setModalOpen(true)
       start({

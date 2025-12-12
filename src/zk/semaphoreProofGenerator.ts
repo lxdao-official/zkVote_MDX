@@ -70,7 +70,14 @@ export async function generateSemaphoreProof(
   params: ProofGenerationParams
 ): Promise<SemaphoreProofOutput> {
   try {
+    console.log('[semaphoreProofGenerator] 开始生成证明')
     const { identity, groupMembers, proposalId, optionId } = params
+
+    console.log('[semaphoreProofGenerator] 输入参数:')
+    console.log('  - Proposal ID:', proposalId)
+    console.log('  - Option ID:', optionId)
+    console.log('  - 用户 commitment:', identity.commitment.toString())
+    console.log('  - 群组成员数:', groupMembers?.length)
 
     // 验证参数
     if (!groupMembers || !Array.isArray(groupMembers)) {
@@ -84,8 +91,10 @@ export async function generateSemaphoreProof(
     // 验证当前用户是否在群组中
     const userCommitment = identity.commitment
     const isUserInGroup = groupMembers.some(member => member === userCommitment)
+    console.log('[semaphoreProofGenerator] 用户是否在群组中:', isUserInGroup)
+
     if (!isUserInGroup) {
-      console.error('[generateSemaphoreProof] 用户不在群组中', {
+      console.error('[semaphoreProof Generator] ❌ 用户不在群组中', {
         userCommitment: userCommitment.toString(),
         groupMembers: groupMembers.map(m => m.toString()),
       })
@@ -93,6 +102,7 @@ export async function generateSemaphoreProof(
     }
 
     // 1. 构建 Semaphore Group (Merkle Tree)
+    console.log('[semaphoreProofGenerator] 🌳 开始构建 Merkle Tree')
     // Semaphore v4.x Group 构造函数只接受成员列表，不需要 depth 参数
     const group = new Group()
 
@@ -114,11 +124,19 @@ export async function generateSemaphoreProof(
       }
     }
 
+    console.log('[semaphoreProofGenerator] ✅ Merkle Tree 构建完成')
+    console.log('  - 成员总数:', groupMembers.length)
+    console.log('  - Merkle Root (本地计算):', group.root.toString())
+
     // 2. 生成随机 voteNonce 并构造新的 external nullifier
     const voteNonce = generateRandomVoteNonce()
     const externalNullifier = buildExternalNullifier(BigInt(proposalId), voteNonce)
+    console.log('[semaphoreProofGenerator] External Nullifier 生成:')
+    console.log('  - Vote Nonce:', voteNonce.toString())
+    console.log('  - External Nullifier:', externalNullifier.toString())
 
     // 3. 生成证明
+    console.log('[semaphoreProofGenerator] 🔐 开始生成 ZK 证明...')
     // message (signal) = optionId (投票选项)
     // scope = externalNullifier (绑定提案 + 随机 nonce)
     // merkleTreeDepth 由库自动根据 Merkle proof 推断
@@ -128,6 +146,7 @@ export async function generateSemaphoreProof(
       BigInt(optionId), // message/signal
       externalNullifier // scope/external nullifier
     )
+    console.log('[semaphoreProofGenerator] ✅ ZK 证明生成完成')
 
     // 3. 格式化为合约所需格式
     // 注意：merkleTreeDepth 的类型处理
@@ -161,6 +180,19 @@ export async function generateSemaphoreProof(
       scope: externalNullifier,
       points: fullProof.points as [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint],
     }
+
+    console.log('[semaphoreProofGenerator] 📦 证明输出数据:')
+    console.log('  - Merkle Tree Depth:', proofOutput.merkleTreeDepth.toString())
+    console.log('  - Merkle Tree Root:', proofOutput.merkleTreeRoot.toString())
+    console.log('  - Nullifier:', proofOutput.nullifier.toString())
+    console.log('  - Message (optionId):', proofOutput.message.toString())
+    console.log('  - Scope (external nullifier):', proofOutput.scope.toString())
+    console.log('  - Proof Points 数量:', proofOutput.points.length)
+    console.log('')
+    console.log('⚠️  关键对比信息:')
+    console.log('  - 本地 Merkle Root:', proofOutput.merkleTreeRoot.toString())
+    console.log('  - 请在区块链浏览器检查链上实际 Merkle Root 是否匹配')
+    console.log('  - 如果不匹配,说明前端获取的成员列表不完整')
 
     return proofOutput
   } catch (error) {

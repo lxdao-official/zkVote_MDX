@@ -8,11 +8,12 @@ import { parseAbiItem } from 'viem'
 import { publicClient } from '../wagmiConfig'
 import { SIMPLE_VOTING_V5_ADDRESS } from './simpleVotingClient'
 
-// 合约部署区块号（或提案创建区块号）
-// 从此区块开始查询事件，避免 RPC "eth_getLogs is limited to a 10,000 range" 错误
-// 优化：只查询最近的区块，减少查询范围
-const RECENT_BLOCKS = 5000n // 减少到 5000 个区块以避免速率限制
-const DEPLOYMENT_BLOCK = 9750000n // 如果需要查询历史数据，使用此值
+// 合约部署区块号 - 代理合约实际部署区块
+const DEPLOYMENT_BLOCK = 9811631n
+// RPC 节点单次查询的最大区块范围限制
+const MAX_BLOCK_RANGE = 10000n
+// 废弃的配置 (不再使用动态查询)
+// const RECENT_BLOCKS = 49999n
 
 /**
  * MemberJoined 事件定义 (V5 更新)
@@ -32,28 +33,80 @@ export async function fetchGroupMembers(proposalId: number): Promise<bigint[]> {
   const maxRetries = 3
   let lastError: Error | null = null
 
+  console.log('[groupMembersFetcher] 开始获取群组成员')
+  console.log('[groupMembersFetcher] Proposal ID:', proposalId)
+  console.log('[groupMembersFetcher] 合约地址:', SIMPLE_VOTING_V5_ADDRESS)
+
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       // 获取当前区块号
       const latestBlock = await publicClient.getBlockNumber()
+      console.log('[groupMembersFetcher] 当前区块号:', latestBlock.toString())
 
-      // 优化：只查询最近的区块，而不是从部署区块开始
-      const startBlock = latestBlock > RECENT_BLOCKS ? latestBlock - RECENT_BLOCKS : 0n
-      const blockRange = latestBlock - startBlock
+      // 计算总查询范围
+      const totalRange = latestBlock - DEPLOYMENT_BLOCK
+      console.log('[groupMembersFetcher] 查询区块范围:')
+      console.log('  - 起始区块 (部署区块):', DEPLOYMENT_BLOCK.toString())
+      console.log('  - 结束区块:', latestBlock.toString())
+      console.log('  - 总区块范围:', totalRange.toString())
 
-      // 只查询最近 5000 个区块，避免 RPC 限制
-      const logs = await publicClient.getLogs({
-        address: SIMPLE_VOTING_V5_ADDRESS,
-        event: MEMBER_JOINED_EVENT,
-        args: {
-          proposalId: BigInt(proposalId),
-        },
-        fromBlock: startBlock,
-        toBlock: 'latest',
-      })
+      let allLogs: any[] = []
+
+      // 判断是否需要分段查询
+      if (totalRange > MAX_BLOCK_RANGE) {
+        console.log('[groupMembersFetcher] ⚠️  区块范围超过限制，使用分段查询')
+        console.log('[groupMembersFetcher] 单次查询限制:', MAX_BLOCK_RANGE.toString(), '个区块')
+
+        // 分段查询逻辑
+        let currentBlock = DEPLOYMENT_BLOCK
+
+        while (currentBlock < latestBlock) {
+          const endBlock = currentBlock + MAX_BLOCK_RANGE > latestBlock
+            ? latestBlock
+            : currentBlock + MAX_BLOCK_RANGE
+
+          console.log(`[groupMembersFetcher] 📊 查询分段: ${currentBlock} → ${endBlock} (${endBlock - currentBlock} 个区块)`)
+
+          const logs = await publicClient.getLogs({
+            address: SIMPLE_VOTING_V5_ADDRESS,
+            event: MEMBER_JOINED_EVENT,
+            args: {
+              proposalId: BigInt(proposalId),
+            },
+            fromBlock: currentBlock,
+            toBlock: endBlock,
+          })
+
+          console.log(`[groupMembersFetcher] ✅ 本段获取 ${logs.length} 个事件`)
+          allLogs.push(...logs)
+          currentBlock = endBlock + 1n
+
+          // 避免 RPC 速率限制，短暂延迟
+          if (currentBlock < latestBlock) {
+            await new Promise(resolve => setTimeout(resolve, 100))
+          }
+        }
+
+        console.log('[groupMembersFetcher] ✅ 分段查询完成，总共获取', allLogs.length, '个 MemberJoined 事件')
+      } else {
+        // 单次查询（范围在限制内）
+        console.log('[groupMembersFetcher] ✅ 区块范围在限制内，使用单次查询')
+
+        allLogs = await publicClient.getLogs({
+          address: SIMPLE_VOTING_V5_ADDRESS,
+          event: MEMBER_JOINED_EVENT,
+          args: {
+            proposalId: BigInt(proposalId),
+          },
+          fromBlock: DEPLOYMENT_BLOCK,
+          toBlock: 'latest',
+        })
+
+        console.log('[groupMembersFetcher] ✅ 获取到', allLogs.length, '个 MemberJoined 事件')
+      }
 
       // 提取 identityCommitment 并按区块号/日志索引排序（保证顺序一致）
-      const members = logs
+      const members = allLogs
         .sort((a, b) => {
           // 首先按区块号排序
           const blockDiff = Number(a.blockNumber) - Number(b.blockNumber)
@@ -68,6 +121,13 @@ export async function fetchGroupMembers(proposalId: number): Promise<bigint[]> {
           }
           return log.args.identityCommitment
         })
+
+      console.log('[groupMembersFetcher] ✅ 成员列表处理完成')
+      console.log('[groupMembersFetcher] 成员数量:', members.length)
+      if (members.length > 0) {
+        console.log('[groupMembersFetcher] 第一个成员:', members[0].toString())
+        console.log('[groupMembersFetcher] 最后一个成员:', members[members.length - 1].toString())
+      }
 
       return members
     } catch (error) {
@@ -118,20 +178,54 @@ export async function getGroupMemberCount(proposalId: number): Promise<number> {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       const latestBlock = await publicClient.getBlockNumber()
-      const startBlock = latestBlock > RECENT_BLOCKS ? latestBlock - RECENT_BLOCKS : 0n
+      const totalRange = latestBlock - DEPLOYMENT_BLOCK
 
-      // 一次性查询（最近 5000 个区块）
-      const logs = await publicClient.getLogs({
-        address: SIMPLE_VOTING_V5_ADDRESS,
-        event: MEMBER_JOINED_EVENT,
-        args: {
-          proposalId: BigInt(proposalId),
-        },
-        fromBlock: startBlock,
-        toBlock: 'latest',
-      })
+      let totalCount = 0
 
-      return logs.length
+      // 判断是否需要分段查询
+      if (totalRange > MAX_BLOCK_RANGE) {
+        // 分段查询
+        let currentBlock = DEPLOYMENT_BLOCK
+
+        while (currentBlock < latestBlock) {
+          const endBlock = currentBlock + MAX_BLOCK_RANGE > latestBlock
+            ? latestBlock
+            : currentBlock + MAX_BLOCK_RANGE
+
+          const logs = await publicClient.getLogs({
+            address: SIMPLE_VOTING_V5_ADDRESS,
+            event: MEMBER_JOINED_EVENT,
+            args: {
+              proposalId: BigInt(proposalId),
+            },
+            fromBlock: currentBlock,
+            toBlock: endBlock,
+          })
+
+          totalCount += logs.length
+          currentBlock = endBlock + 1n
+
+          // 避免 RPC 速率限制
+          if (currentBlock < latestBlock) {
+            await new Promise(resolve => setTimeout(resolve, 100))
+          }
+        }
+      } else {
+        // 单次查询
+        const logs = await publicClient.getLogs({
+          address: SIMPLE_VOTING_V5_ADDRESS,
+          event: MEMBER_JOINED_EVENT,
+          args: {
+            proposalId: BigInt(proposalId),
+          },
+          fromBlock: DEPLOYMENT_BLOCK,
+          toBlock: 'latest',
+        })
+
+        totalCount = logs.length
+      }
+
+      return totalCount
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
       console.error(`[getGroupMemberCount] 获取失败 (尝试 ${attempt + 1}/${maxRetries})`, error)

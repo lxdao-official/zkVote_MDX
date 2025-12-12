@@ -125,29 +125,40 @@ export function useZkVotingFlow() {
       try {
         // 步骤 1: 加入提案群组 (如果需要)
         if (requiresJoin) {
+          console.log('========== 📝 [步骤 3/5] 加入提案群组 ==========')
           if (!identityCommitment) {
             throw new Error('Identity commitment required for joining')
           }
+          console.log('[useZkVotingFlow] Proposal ID:', proposalId)
+          console.log('[useZkVotingFlow] Identity Commitment:', identityCommitment.toString())
+
           setState((prev) => ({ ...prev, currentStep: 'STEP2_JOIN_GROUP' }))
           const joinTx = await joinProposal(proposalId, identityCommitment)
+          console.log('[useZkVotingFlow] ✅ 加入交易已提交:', joinTx)
+
           setState((prev) => ({
             ...prev,
             txHashes: { ...prev.txHashes, join: joinTx },
           }))
           await waitForTransactionReceipt(wagmiConfig, { hash: joinTx })
+          console.log('[useZkVotingFlow] ✅ 加入交易已确认')
         }
 
         // 步骤 2: 同步成员 (构建 Merkle Tree)
         if (steps.includes('STEP3_SYNC_MEMBERS')) {
+          console.log('========== 🔄 [步骤 3/5] 同步群组成员 ==========')
           setState((prev) => ({ ...prev, currentStep: 'STEP3_SYNC_MEMBERS' }))
+          console.log('[useZkVotingFlow] 当前群组成员数:', groupMembers.length)
           // 注意：这里需要从链上获取群组成员列表
           // 实际实现中，groupMembers 应该通过 fetchGroupMembers() 获取
           await sleep(1200)
+          console.log('[useZkVotingFlow] ✅ 成员同步完成')
         }
 
         // 步骤 3: 生成 Semaphore 证明
         let proofOutput: SemaphoreProofOutput | null = null
         if (steps.includes('STEP4_GENERATE_PROOF')) {
+          console.log('========== 🔐 [步骤 4/5] 生成零知识证明 ==========')
           if (!identity) {
             throw new Error('Semaphore identity required for proof generation')
           }
@@ -155,6 +166,12 @@ export function useZkVotingFlow() {
           if (groupMembers.length === 0) {
             throw new Error('Group members list is required for proof generation')
           }
+
+          console.log('[useZkVotingFlow] 证明生成参数:')
+          console.log('  - Proposal ID:', proposalId)
+          console.log('  - Option ID:', optionId)
+          console.log('  - 群组成员数:', groupMembers.length)
+          console.log('  - 用户 commitment:', identity.commitment.toString())
 
           setState((prev) => ({ ...prev, currentStep: 'STEP4_GENERATE_PROOF' }))
 
@@ -166,23 +183,38 @@ export function useZkVotingFlow() {
             optionId,
           })
 
+          console.log('[useZkVotingFlow] ✅ 证明生成成功')
+          console.log('  - Merkle Root:', proofOutput.merkleTreeRoot.toString())
+          console.log('  - Nullifier:', proofOutput.nullifier.toString())
+          console.log('  - Message:', proofOutput.message.toString())
         }
 
         // 步骤 4: 提交投票
         if (steps.includes('STEP5_SUBMIT_VOTE')) {
+          console.log('========== 📤 [步骤 5/5] 提交投票到链上 ==========')
           if (!proofOutput) {
             throw new Error('Proof generation failed')
           }
 
+          console.log('[useZkVotingFlow] 提交投票参数:')
+          console.log('  - Proposal ID:', proposalId)
+          console.log('  - Option ID:', optionId)
+          console.log('  - Merkle Root:', proofOutput.merkleTreeRoot.toString())
+          console.log('  - Nullifier:', proofOutput.nullifier.toString())
+
           setState((prev) => ({ ...prev, currentStep: 'STEP5_SUBMIT_VOTE' }))
           const voteTx = await submitZkVote(proposalId, optionId, proofOutput)
+          console.log('[useZkVotingFlow] ✅ 投票交易已提交:', voteTx)
+
           setState((prev) => ({
             ...prev,
             txHashes: { ...prev.txHashes, vote: voteTx },
           }))
 
           setState((prev) => ({ ...prev, currentStep: 'STEP6_CONFIRMATION' }))
+          console.log('[useZkVotingFlow] ⏳ 等待交易确认...')
           await waitForTransactionReceipt(wagmiConfig, { hash: voteTx })
+          console.log('[useZkVotingFlow] ✅ 投票交易已确认')
 
           setState((prev) => ({
             ...prev,
