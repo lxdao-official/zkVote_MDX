@@ -201,7 +201,7 @@ export const MDXWrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
       margin: '0 auto',
       padding: 'var(--spacing-8) var(--spacing-6)',
       boxSizing: 'border-box',
-      backgroundColor: 'var(--neutral-white)',
+      backgroundColor: 'transparent',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
       lineHeight: 'var(--line-height-normal)',
       minHeight: '100vh'

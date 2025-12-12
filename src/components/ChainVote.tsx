@@ -77,8 +77,10 @@ export default function ChainVote() {
 
     useEffect(() => {
         if (isSuccess) {
-            refetchOptions();
             setSelectedOption(null);
+            refetchOptions().catch(err => {
+                console.warn('刷新选项数据失败:', err);
+            });
         }
     }, [isSuccess, refetchOptions]);
 

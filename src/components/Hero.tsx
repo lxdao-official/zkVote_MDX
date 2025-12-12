@@ -1,7 +1,11 @@
 // src/components/Hero.tsx
 import React from 'react'
 
-export default function Hero() {
+interface HeroProps {
+  onStartClick?: () => void
+}
+
+export default function Hero({ onStartClick }: HeroProps) {
   return (
     <div style={styles.heroSection}>
       {/* 主标题 */}
@@ -49,16 +53,7 @@ export default function Hero() {
       {/* 开始按钮 */}
       <button
         style={styles.startButton}
-        onClick={() => {
-          // 平滑滚动到内容区
-          const content = document.querySelector('article')
-          if (content) {
-            const firstHeading = content.querySelector('h2')
-            if (firstHeading) {
-              firstHeading.scrollIntoView({ behavior: 'smooth', block: 'start' })
-            }
-          }
-        }}
+        onClick={onStartClick}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'translateY(-2px)'
           e.currentTarget.style.boxShadow = 'var(--shadow-bottom-6)'
@@ -78,6 +73,12 @@ export default function Hero() {
       >
         开始体验 →
       </button>
+
+      {/* 滚动提示 */}
+      <div style={styles.scrollHint}>
+        <div style={styles.scrollIcon}>↓</div>
+        <p style={styles.scrollText}>向下滚动开始探索</p>
+      </div>
     </div>
   )
 }
@@ -198,6 +199,47 @@ const styles: { [key: string]: React.CSSProperties } = {
     transition: 'all var(--transition-normal) ease',
     boxShadow: 'var(--shadow-bottom-4)',
   },
+  scrollHint: {
+    position: 'absolute',
+    bottom: 'var(--spacing-10)',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 'var(--spacing-2)',
+    opacity: 0.6,
+    animation: 'bounce 2s infinite',
+  },
+  scrollIcon: {
+    fontSize: '2rem',
+    color: 'var(--primary-blue)',
+    animation: 'bounce 2s infinite',
+  },
+  scrollText: {
+    fontSize: '0.875rem',
+    color: 'var(--neutral-600)',
+    margin: 0,
+  },
+}
+
+// 添加 CSS 动画
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style')
+  style.textContent = `
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-10px);
+      }
+      60% {
+        transform: translateY(-5px);
+      }
+    }
+  `
+  document.head.appendChild(style)
 }
 
 // 响应式样式

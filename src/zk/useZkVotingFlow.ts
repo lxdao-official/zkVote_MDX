@@ -125,7 +125,7 @@ export function useZkVotingFlow() {
       try {
         // 步骤 1: 加入提案群组 (如果需要)
         if (requiresJoin) {
-          console.log('========== 📝 [步骤 3/5] 加入提案群组 ==========')
+          console.log('========== 📝 [步骤 3/5] 加入提案群组 ==========') 
           if (!identityCommitment) {
             throw new Error('Identity commitment required for joining')
           }
@@ -140,8 +140,15 @@ export function useZkVotingFlow() {
             ...prev,
             txHashes: { ...prev.txHashes, join: joinTx },
           }))
-          await waitForTransactionReceipt(wagmiConfig, { hash: joinTx })
-          console.log('[useZkVotingFlow] ✅ 加入交易已确认')
+
+          // 不阻塞 UI：在后台等待确认，仅用于日志
+          waitForTransactionReceipt(wagmiConfig, { hash: joinTx })
+            .then(() => {
+              console.log('[useZkVotingFlow] ✅ 加入交易已确认')
+            })
+            .catch((waitErr) => {
+              console.warn('[useZkVotingFlow] 加入交易确认等待失败:', waitErr)
+            })
         }
 
         // 步骤 2: 同步成员 (构建 Merkle Tree)
@@ -206,23 +213,25 @@ export function useZkVotingFlow() {
           const voteTx = await submitZkVote(proposalId, optionId, proofOutput)
           console.log('[useZkVotingFlow] ✅ 投票交易已提交:', voteTx)
 
+          // 立刻更新状态为成功，不再同步阻塞等待确认
           setState((prev) => ({
             ...prev,
             txHashes: { ...prev.txHashes, vote: voteTx },
-          }))
-
-          setState((prev) => ({ ...prev, currentStep: 'STEP6_CONFIRMATION' }))
-          console.log('[useZkVotingFlow] ⏳ 等待交易确认...')
-          await waitForTransactionReceipt(wagmiConfig, { hash: voteTx })
-          console.log('[useZkVotingFlow] ✅ 投票交易已确认')
-
-          setState((prev) => ({
-            ...prev,
             currentStep: 'SUCCESS',
             status: 'success',
             errorType: null,
             lastSuccessTx: { hash: voteTx, type: 'vote' },
           }))
+
+          // 在后台等待确认，仅用于日志输出，不影响 UI 状态
+          waitForTransactionReceipt(wagmiConfig, { hash: voteTx })
+            .then(() => {
+              console.log('[useZkVotingFlow] ✅ 投票交易已确认')
+            })
+            .catch((waitErr) => {
+              console.warn('[useZkVotingFlow] 投票交易确认等待失败:', waitErr)
+            })
+
           return
         }
 
