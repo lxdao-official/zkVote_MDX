@@ -8,7 +8,7 @@
 - 🔗 **链上投票体验** - 实际连接钱包并参与 Sepolia 测试网投票
 - 🎨 **现代化 UI** - 响应式设计，支持明暗主题
 - 🔐 **钱包集成** - 支持 MetaMask、WalletConnect 等主流钱包
-- ⚡ **浏览器端证明生成** - 使用 snarkjs 在本地自动生成 ZK 证明
+- ⚡ **浏览器端证明生成** - 使用 Semaphore 在本地生成 ZK 证明
 
 ## 🛠️ 技术栈
 
@@ -20,8 +20,8 @@
 | [MDX](https://mdxjs.com/) | 交互式文档 |
 | [wagmi v3](https://wagmi.sh/) | 以太坊钱包连接 |
 | [viem](https://viem.sh/) | 以太坊交互库 |
-| [Circom](https://docs.circom.io/) | ZK 电路语言 |
-| [snarkjs](https://github.com/iden3/snarkjs) | ZK 证明生成库 |
+| [Semaphore](https://semaphore.pse.dev/) | 群组匿名 + ZK 证明（前端生成） |
+| [Circom](https://docs.circom.io/) |（可选）电路源码目录（当前未接入前端构建） |
 
 ## 📦 安装
 
@@ -32,42 +32,36 @@ cd zkVote_MDX
 
 # 安装依赖
 npm install
-
-# 配置环境变量
-cp .env.example .env
 ```
 
-## ⚙️ 环境变量
+## ⚙️ 环境变量（本地运行必需）
 
-在 `.env` 文件中配置以下变量：
+建议使用 `.env.local`（避免误提交），Vite 会自动加载：
 
 ```env
-# ZK 投票合约代理地址 (Sepolia 测试网)
-VITE_ZK_VOTE_PROXY=0x你的合约地址
+# 明文投票合约代理地址（ChainVote 组件使用）
+VITE_PUBLIC_VOTE_PROXY=0x...
 
-# WalletConnect 项目 ID (可选，用于支持 WalletConnect)
-VITE_WC_PROJECT_ID=your_project_id
+# ZK 投票合约代理地址（SimpleVotingV7，ZK 流程使用）
+VITE_ZK_VOTE_PROXY=0x...
+
+# WalletConnect 项目 ID（可选；不用 WalletConnect 可不填）
+VITE_WC_PROJECT_ID=...
 ```
 
-## 🔧 ZK 电路设置 (必需)
+注意：`.env`/`.env.local` 采用标准 dotenv 语法，不要在行尾加逗号或多余引号。
 
-**⚠️ 重要:** 运行前端之前，你必须先编译 ZK 电路并生成证明文件。
+## 🔐 ZK 投票流程（当前实现）
 
-详细步骤请参考 [CIRCUIT_SETUP.md](./CIRCUIT_SETUP.md)
+本项目当前的 ZK 投票使用 `@semaphore-protocol/identity/group/proof` 在浏览器端生成证明：
 
-快速启动：
+- 身份：`src/zk/useSemaphoreIdentity.ts`
+- 群组成员拉取：`src/zk/groupMembersFetcher.ts`
+- 证明生成：`src/zk/semaphoreProofGenerator.ts`（提交的是 commitment，隐藏明文选项）
+- 流程编排：`src/zk/useZkVotingFlow.ts`
+- 合约交互：`src/zk/simpleVotingClient.ts`（SimpleVotingV7）
 
-```bash
-# 1. 从 UUPS_SimpleVote 复制编译脚本
-cd circuits
-bash ../UUPS_SimpleVote/circuits/compile.sh
-
-# 2. 部署生成的文件到前端
-mkdir -p public/circuits
-cp zkp/vote_js/vote.wasm public/circuits/
-cp zkp/vote_final.zkey public/circuits/
-cp zkp/verification_key.json public/circuits/
-```
+仓库内也保留了自定义电路源码 `circuits/vote.circom`，但目前前端流程未直接依赖 `public/circuits/` 下的自编译产物。
 
 ## 🚀 运行
 
@@ -78,6 +72,9 @@ npm run dev
 # 构建生产版本
 npm run build
 
+# 代码检查
+npm run lint
+
 # 预览生产构建
 npm run preview
 ```
@@ -86,30 +83,25 @@ npm run preview
 
 ```
 zkVote_MDX/
-├── circuits/                   # ZK 电路源码
-│   └── vote.circom             # 投票电路 (来自 UUPS_SimpleVote)
-├── zkp/                        # 编译生成的 ZK 文件 (自动生成)
-│   ├── vote.r1cs
-│   ├── vote_js/vote.wasm
-│   └── vote_final.zkey
-├── public/                     # 静态资源
-│   └── circuits/               # 前端需要的 ZK 文件
-│       ├── vote.wasm
-│       ├── vote_final.zkey
-│       └── verification_key.json
+├── circuits/                   #（可选）Circom 电路源码（当前未接入前端构建）
+│   └── vote.circom
+├── public/                     # 静态资源（Vite）
 ├── src/
 │   ├── abi/                    # 合约 ABI 文件
-│   │   └── SimpleVotingV2.json
+│   │   ├── SimpleVoteABI.json
+│   │   └── SimpleVotingV7.json
 │   ├── components/             # React 组件
-│   │   ├── ZKChainVote.tsx     # ZK 投票组件 (新)
-│   │   ├── ZkIdentityPanel.tsx # 匿名身份管理
+│   │   ├── ChainVote.tsx       # 明文投票（传统链上投票）
+│   │   ├── ZKChainVote.tsx     # ZK 投票入口组件
+│   │   ├── ZkVoteProgressModal.tsx
 │   │   ├── ConnectWallet.tsx   # 钱包连接组件
 │   │   └── Navbar.tsx          # 导航栏组件
 │   ├── zk/                     # ZK 核心逻辑
-│   │   ├── zkProofGenerator.ts # 浏览器端证明生成 (新)
-│   │   ├── useZkVotingFlow.ts  # 投票流程管理
-│   │   ├── useZkIdentity.ts    # 匿名身份管理
-│   │   └── simpleVotingClient.ts # 合约交互
+│   │   ├── useSemaphoreIdentity.ts
+│   │   ├── groupMembersFetcher.ts
+│   │   ├── semaphoreProofGenerator.ts
+│   │   ├── useZkVotingFlow.ts
+│   │   └── simpleVotingClient.ts
 │   ├── content/                # MDX 内容
 │   │   └── MyFirstZKVote.mdx   # 主教程文档
 │   ├── mdx/                    # MDX 配置
@@ -124,7 +116,6 @@ zkVote_MDX/
 ├── .env                        # 环境变量
 ├── vite.config.ts              # Vite 配置
 ├── package.json
-├── CIRCUIT_SETUP.md            # ZK 电路设置指南 (新)
 └── README.md
 ```
 
@@ -171,15 +162,18 @@ export const mdxComponents = {
 
 ### 修改 ZK 电路
 
-1. 编辑 `circuits/vote.circom`
-2. 重新编译电路: `bash circuits/compile.sh`
-3. 更新 `public/circuits/` 中的文件
-4. 根据需要调整 `src/zk/zkProofGenerator.ts`
+当前 ZK 投票基于 Semaphore 证明生成，主要修改点在：
+
+1. `src/zk/semaphoreProofGenerator.ts`（commitment 计算/证明入参）
+2. `src/zk/groupMembersFetcher.ts`（成员来源/同步逻辑）
+3. `src/zk/simpleVotingClient.ts`（合约方法/ABI/参数）
+
+如需接入 `circuits/vote.circom` 这类自定义电路，请补充：编译步骤、产物存放位置、以及前端读取方式（例如从 `public/` 加载 wasm/zkey）。
 
 ### 修改合约配置
 
-1. 更新 `src/abi/SimpleVotingV2.json`
-2. 修改 `.env` 中的 `VITE_ZK_VOTE_PROXY` 地址
+1. 更新 `src/abi/` 下对应版本 ABI（当前 ZK 使用 `SimpleVotingV7.json`）
+2. 修改 `.env.local` 中的 `VITE_PUBLIC_VOTE_PROXY` / `VITE_ZK_VOTE_PROXY`
 3. 根据需要调整 `src/zk/simpleVotingClient.ts`
 
 ## 🆕 更新说明 (v2.0)
@@ -197,7 +191,7 @@ export const mdxComponents = {
 - ✅ 直接使用 `voterAddress` (以太坊地址)
 - ✅ `nullifierHash = Poseidon(address, proposalId)` 自动防重投
 - ✅ `voteCommitment = Poseidon(nullifierHash, option, secret)` 隐藏选项
-- ✅ 浏览器本地自动生成证明 (snarkjs)
+- ✅ 浏览器本地自动生成证明（Semaphore）
 - ✅ 无需后端，完全去中心化
 
 ### 工作流程对比
@@ -228,7 +222,6 @@ MIT License
 - [LXDAO](https://lxdao.io/) - 社区支持
 - [Semaphore](https://semaphore.pse.dev/) - ZK 匿名信号协议参考
 - [Circom](https://docs.circom.io/) - ZK 电路语言
-- [snarkjs](https://github.com/iden3/snarkjs) - ZK 证明生成
 
 ---
 
