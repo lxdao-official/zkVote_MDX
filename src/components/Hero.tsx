@@ -1,11 +1,14 @@
 // src/components/Hero.tsx
 import React from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 
 interface HeroProps {
   onStartClick?: () => void
 }
 
 export default function Hero({ onStartClick }: HeroProps) {
+  const { t } = useTranslation()
+
   return (
     <div style={styles.heroSection}>
       {/* 主标题 */}
@@ -13,17 +16,17 @@ export default function Hero({ onStartClick }: HeroProps) {
         My First <span style={styles.highlight}>ZKVote</span>
       </h1>
       <h2 style={styles.mainTitleChinese}>
-        我的第一次 ZK 投票
+        {t('hero.subtitle')}
       </h2>
 
       {/* 副标题 */}
       <p style={styles.subtitle}>
-        在这里，用一次实投票，理解零知识证明在 Web3 里的价值。
+        {t('hero.tagline')}
       </p>
 
       {/* 说明小字 */}
       <p style={styles.description}>
-        适合刚接触加密世界、想体验 <strong>隐私友好型投票</strong> 的你。
+        <Trans i18nKey="hero.description" components={{ strong: <strong /> }} />
       </p>
 
       {/* 信息卡片容器 */}
@@ -32,9 +35,9 @@ export default function Hero({ onStartClick }: HeroProps) {
         <div style={styles.infoCard}>
           <div style={styles.iconCircle}>⏱️</div>
           <div>
-            <div style={styles.cardLabel}>预计体验时长</div>
-            <div style={styles.cardValue}>约 1 小时</div>
-            <div style={styles.cardNote}>(视个人情况而定)</div>
+            <div style={styles.cardLabel}>{t('hero.durationLabel')}</div>
+            <div style={styles.cardValue}>{t('hero.durationValue')}</div>
+            <div style={styles.cardNote}>{t('hero.durationNote')}</div>
           </div>
         </div>
 
@@ -43,7 +46,7 @@ export default function Hero({ onStartClick }: HeroProps) {
           href="https://lxdao.io/"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="访问 LXDAO 官网"
+          aria-label={t('hero.lxdaoAria')}
           style={{
             ...styles.infoCard,
             ...styles.lxdaoCard,
@@ -55,8 +58,8 @@ export default function Hero({ onStartClick }: HeroProps) {
             <img src="/lxdao-logo.svg" alt="LXDAO Logo" style={styles.logoImage} />
           </div>
           <div>
-            <div style={styles.cardLabel}>构建者</div>
-            <div style={styles.cardValue}>LXDAO 社区</div>
+            <div style={styles.cardLabel}>{t('hero.builderLabel')}</div>
+            <div style={styles.cardValue}>{t('hero.builderValue')}</div>
           </div>
         </a>
       </div>
@@ -65,30 +68,30 @@ export default function Hero({ onStartClick }: HeroProps) {
       <button
         style={styles.startButton}
         onClick={onStartClick}
-        onMouseEnter={(e) => {
+        onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
           e.currentTarget.style.transform = 'translateY(-2px)'
           e.currentTarget.style.boxShadow = 'var(--shadow-bottom-6)'
         }}
-        onMouseLeave={(e) => {
+        onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
           e.currentTarget.style.transform = 'translateY(0)'
           e.currentTarget.style.boxShadow = 'var(--shadow-bottom-4)'
         }}
-        onMouseDown={(e) => {
+        onMouseDown={(e: React.MouseEvent<HTMLButtonElement>) => {
           e.currentTarget.style.transform = 'translateY(2px)'
           e.currentTarget.style.boxShadow = 'var(--shadow-bottom-2)'
         }}
-        onMouseUp={(e) => {
+        onMouseUp={(e: React.MouseEvent<HTMLButtonElement>) => {
           e.currentTarget.style.transform = 'translateY(-2px)'
           e.currentTarget.style.boxShadow = 'var(--shadow-bottom-6)'
         }}
       >
-        开始体验 →
+        {t('hero.start')}
       </button>
 
       {/* 滚动提示 */}
       <div style={styles.scrollHint}>
         <div style={styles.scrollIcon}>↓</div>
-        <p style={styles.scrollText}>向下滚动开始探索</p>
+        <p style={styles.scrollText}>{t('hero.scrollHint')}</p>
       </div>
     </div>
   )

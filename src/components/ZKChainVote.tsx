@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAccount, useChainId, useReadContract } from 'wagmi'
+import { useTranslation } from 'react-i18next'
 import SimpleVotingV7ABI from '../abi/SimpleVotingV7.json'
 import { SIMPLE_VOTING_V7_ADDRESS } from '../zk/simpleVotingClient'
 import { useSemaphoreIdentity } from '../zk/useSemaphoreIdentity'
@@ -44,6 +45,7 @@ const extraStyles: Record<string, React.CSSProperties> = {
 const styles = { ...voteStyles, ...extraStyles }
 
 export default function ZKChainVote() {
+  const { t } = useTranslation()
   const { isConnected, address } = useAccount()
   const chainId = useChainId()
   const { identity, commitment, ensureIdentity } = useSemaphoreIdentity()
@@ -86,7 +88,7 @@ export default function ZKChainVote() {
     name,
   })) ?? []
   const isEnded = !isActive
-  const proposalTitle = typeof title === 'string' ? title : '加载中...'
+  const proposalTitle = typeof title === 'string' ? title : t('zkVote.proposalTitleFallback')
   const displayAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '--'
 
   const txHashToShow = flowState.txHashes.vote ?? flowState.txHashes.join
@@ -94,7 +96,7 @@ export default function ZKChainVote() {
 
   const statusText = useMemo(() => {
     if (isActive === undefined) return '--'
-    return isActive ? '投票进行中' : '已结束'
+    return isActive ? t('zkVote.statusRunning') : t('zkVote.statusEnded')
   }, [isActive])
 
   // V7: 检查用户是否已经加入 (通过 getUserGroupId)
@@ -162,11 +164,11 @@ export default function ZKChainVote() {
   const triggerFlow = useCallback(
     async (mode: 'full' | 'join-only') => {
       if (!isConnected || !address) {
-        alert('请先连接钱包')
+        alert(t('zkVote.alertConnectFirst'))
         return
       }
       if (selectedOption === null) {
-        alert('请先选择一个选项')
+        alert(t('zkVote.alertChooseOptionFirst'))
         return
       }
       if (!identity || !commitment) {
@@ -215,16 +217,16 @@ export default function ZKChainVote() {
   )
 
   const buttonCopy = useMemo(() => {
-    if (isEnded) return { label: '投票已结束', disabled: true }
-    if (!isConnected) return { label: '请先连接钱包', disabled: true }
-    if (selectedOption === null) return { label: '请先选择选项', disabled: true }
-    if (isCheckingMembership) return { label: '检查成员资格...', disabled: true }
-    if (!identity || !commitment) return { label: '生成匿名身份', disabled: false, action: ensureIdentity }
+    if (isEnded) return { label: t('zkVote.buttonEnded'), disabled: true }
+    if (!isConnected) return { label: t('zkVote.buttonConnectFirst'), disabled: true }
+    if (selectedOption === null) return { label: t('zkVote.buttonChooseOption'), disabled: true }
+    if (isCheckingMembership) return { label: t('zkVote.buttonCheckingMembership'), disabled: true }
+    if (!identity || !commitment) return { label: t('zkVote.buttonGenerateIdentity'), disabled: false, action: ensureIdentity }
     if (!hasJoined) {
-      return { label: '先加入提案（可稍后投票）', disabled: false, action: () => triggerFlow('join-only') }
+      return { label: t('zkVote.buttonJoinFirst'), disabled: false, action: () => triggerFlow('join-only') }
     }
     return {
-      label: hasVoted ? '再投一票 (ZK)' : '立即提交 ZK 投票',
+      label: hasVoted ? t('zkVote.buttonVoteAgain') : t('zkVote.buttonSubmitZkVote'),
       disabled: false,
       action: () => triggerFlow('full'),
     }
@@ -246,15 +248,12 @@ export default function ZKChainVote() {
     if (txType === 'join') {
       return (
         <>
-          <p style={styles.analysisText}>
-            这笔交易调用了 <code>joinProposal</code>，Input Data 只包含你的 <strong>identityCommitment</strong>。任何人无法
-            从中反推出你的真实身份。
-          </p>
+          <p style={styles.analysisText}>{t('zkVote.analysisJoin')}</p>
           <div style={styles.dataBreakdown}>
             <div style={styles.dataItem}>
               <code style={styles.dataSelector}>identityCommitment</code>
               <span style={styles.dataExplain}>
-                {commitment ? commitment.toString() : '（请记录在本地）'}
+                {commitment ? commitment.toString() : t('zkVote.commitmentFallback')}
               </span>
             </div>
           </div>
@@ -264,18 +263,15 @@ export default function ZKChainVote() {
 
     return (
       <>
-        <p style={styles.analysisText}>
-          这笔 <strong>ZK 投票</strong> 交易携带了 nullifierHash、voteCommitment 和零知识证明。链上验证 proof
-          合法，但无法得知你具体投给了哪个选项。
-        </p>
+        <p style={styles.analysisText}>{t('zkVote.analysisVote')}</p>
         <div style={styles.dataBreakdown}>
           <div style={styles.dataItem}>
             <code style={styles.dataSelector}>nullifierHash</code>
-            <span style={styles.dataExplain}>防重复投票标识（匿名身份 + 提案ID + 随机 voteNonce）</span>
+            <span style={styles.dataExplain}>{t('zkVote.analysisNullifier')}</span>
           </div>
           <div style={styles.dataItem}>
             <code style={styles.dataSelector}>voteCommitment</code>
-            <span style={styles.dataExplain}>隐藏投票选择 (Poseidon(nullifierHash, option, secret))</span>
+            <span style={styles.dataExplain}>{t('zkVote.analysisVoteCommitment')}</span>
           </div>
           <div style={styles.dataItem}>
             <code style={styles.dataSelector}>proof[0..7]</code>
@@ -301,9 +297,9 @@ export default function ZKChainVote() {
     }
     return (
       <div style={styles.zkDifferenceCard}>
-        <strong>🎉 你已经完成了一次 ZK 投票。</strong>
+        <strong>{t('zkVote.afterVoteTitle')}</strong>
         <p>
-          与传统投票不同：区块浏览器只会看到 <code>nullifierHash/voteCommitment/proof</code>，看不到具体选项或真实身份，因此无法把这次投票与你的钱包地址绑定。
+          {t('zkVote.afterVoteBody')}
         </p>
       </div>
     )
@@ -316,10 +312,10 @@ export default function ZKChainVote() {
     return (
       <div style={styles.container}>
         <div style={styles.header}>
-          <h3 style={styles.title}>🛡️ ZK 投票体验</h3>
-          <p style={styles.subtitle}>请先连接钱包再继续</p>
+          <h3 style={styles.title}>{t('zkVote.title')}</h3>
+          <p style={styles.subtitle}>{t('zkVote.subtitleConnectFirst')}</p>
         </div>
-        <div style={styles.notConnected}>未检测到钱包连接，点击页面顶部按钮连接</div>
+        <div style={styles.notConnected}>{t('zkVote.notConnectedDetail')}</div>
       </div>
     )
   }
@@ -327,20 +323,20 @@ export default function ZKChainVote() {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <h3 style={styles.title}>🛡️ ZK 投票体验</h3>
-        <p style={styles.subtitle}>完成匿名身份，导入零知识证明后即可体验完整流程</p>
+        <h3 style={styles.title}>{t('zkVote.title')}</h3>
+        <p style={styles.subtitle}>{t('zkVote.subtitle')}</p>
       </div>
 
       <div style={styles.walletInfo}>
-        <span style={styles.walletLabel}>当前钱包:</span>
+        <span style={styles.walletLabel}>{t('chainVote.currentWallet')}</span>
         <code style={styles.walletAddress}>{displayAddress}</code>
-        <span style={styles.warningBadge}>你的投票记录不会直接暴露在 Input Data 中</span>
+        <span style={styles.warningBadge}>{t('zkVote.walletWarning')}</span>
       </div>
 
       <div style={styles.proposalTitle}>
-        <strong> 当前提案:</strong> {proposalTitle}
+        <strong> {t('chainVote.currentProposal')}</strong> {proposalTitle}
         <div style={{ marginTop: '0.4rem', fontSize: '0.9rem' }}>
-          状态：{statusText} | 网络：Sepolia (ChainId {chainId})
+          {t('zkVote.statusLine', { status: statusText, chainId })}
         </div>
       </div>
 
@@ -348,10 +344,10 @@ export default function ZKChainVote() {
         <div style={styles.txDetailContainer}>
           <div style={styles.successHeader}>
             <span style={styles.successIcon}>✅</span>
-            <span>投票交易已确认（已完成）</span>
+            <span>{t('zkVote.txConfirmed')}</span>
           </div>
           <div style={styles.txCard}>
-            <h4 style={styles.txCardTitle}>📜 交易详情（链上公开可查）</h4>
+            <h4 style={styles.txCardTitle}>{t('zkVote.txDetailsTitle')}</h4>
             <div style={styles.txRow}>
               <span style={styles.txLabel}>Transaction Hash:</span>
               <code style={styles.txValue}>{txHashToShow}</code>
@@ -369,7 +365,7 @@ export default function ZKChainVote() {
               <code style={styles.txValue}>Sepolia Testnet (Chain ID: {chainId})</code>
             </div>
             <div style={styles.inputDataAnalysis}>
-              <h4 style={styles.analysisTitle}>🔍 Input Data 解读</h4>
+              <h4 style={styles.analysisTitle}>{t('zkVote.inputDataTitle')}</h4>
               {renderTxAnalysis()}
             </div>
             <a
@@ -378,7 +374,7 @@ export default function ZKChainVote() {
               rel="noopener noreferrer"
               style={styles.explorerLink}
             >
-              🔗 在 Etherscan 查看完整交易 →
+              {t('zkVote.viewOnEtherscan')}
             </a>
           </div>
           {renderPrivacySummary()}
@@ -386,9 +382,9 @@ export default function ZKChainVote() {
       ) : (
         <>
           <div style={styles.optionsSection}>
-            <h4>投票选项</h4>
+            <h4>{t('zkVote.voteOptionsTitle')}</h4>
             {isOptionsLoading ? (
-              <p>正在加载...</p>
+              <p>{t('chainVote.loading')}</p>
             ) : (
               <ul style={styles.optionList}>
                 {options.map((option) => {
@@ -425,10 +421,9 @@ export default function ZKChainVote() {
           </div>
 
           <div style={styles.infoBox}>
-            <strong>💡 新的投票流程</strong>
+            <strong>{t('zkVote.newFlowTitle')}</strong>
             <p style={{ margin: '0.5rem 0 0' }}>
-              现在你无需手动导入证明！点击投票按钮后，系统会自动在浏览器本地生成 ZK 证明（耗时 2-5 秒），
-              然后直接提交到链上。整个过程完全隐私，你的投票选项不会泄露。
+              {t('zkVote.newFlowBody')}
             </p>
           </div>
 
@@ -445,7 +440,7 @@ export default function ZKChainVote() {
 
           {hasVoted && (
             <p style={{ marginTop: '0.75rem', color: 'var(--neutral-600)', fontSize: '0.9rem' }}>
-              ✅ 你已经完成一次匿名投票。想继续表达意见？随时再投一票，系统会为每次投票生成全新的 nullifier。
+              {t('zkVote.hasVotedHint')}
             </p>
           )}
         </>
@@ -455,10 +450,12 @@ export default function ZKChainVote() {
         <div style={styles.txDetailContainer}>
           <div style={styles.successHeader}>
             <span style={styles.successIcon}>{txType === 'vote' ? '✅' : '📝'}</span>
-            <span>{txType === 'vote' ? '投票交易已上链' : '匿名身份已登记'}</span>
+            <span>
+              {txType === 'vote' ? t('zkVote.txMinedVote') : txType === 'join' ? t('zkVote.txMinedJoin') : ''}
+            </span>
           </div>
           <div style={styles.txCard}>
-            <h4 style={styles.txCardTitle}>📜 交易详情（链上公开可查）</h4>
+            <h4 style={styles.txCardTitle}>{t('zkVote.txDetailsTitle')}</h4>
             <div style={styles.txRow}>
               <span style={styles.txLabel}>Transaction Hash:</span>
               <code style={styles.txValue}>{txHashToShow}</code>
@@ -476,7 +473,7 @@ export default function ZKChainVote() {
               <code style={styles.txValue}>Sepolia Testnet (Chain ID: {chainId})</code>
             </div>
             <div style={styles.inputDataAnalysis}>
-              <h4 style={styles.analysisTitle}>🔍 Input Data 解读</h4>
+              <h4 style={styles.analysisTitle}>{t('zkVote.inputDataTitle')}</h4>
               {renderTxAnalysis()}
             </div>
             <a
@@ -485,7 +482,7 @@ export default function ZKChainVote() {
               rel="noopener noreferrer"
               style={styles.explorerLink}
             >
-              🔗 在 Etherscan 查看完整交易 →
+              {t('zkVote.viewOnEtherscan')}
             </a>
           </div>
           {renderPrivacySummary()}

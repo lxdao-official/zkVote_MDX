@@ -1,4 +1,8 @@
+import { useTranslation } from 'react-i18next'
+
 export default function Footer() {
+  const { t } = useTranslation()
+
   return (
     <footer
       style={{
@@ -32,7 +36,7 @@ export default function Footer() {
             My First ZKVote
           </div>
           <div style={{ fontSize: '0.85rem', color: 'var(--neutral-500)' }}>
-            公开可审计，隐私不泄露。
+            {t('footer.tagline')}
           </div>
         </div>
 
@@ -55,14 +59,14 @@ export default function Footer() {
               boxShadow: 'var(--shadow-bottom-2)',
               transition: 'transform var(--transition-normal) ease',
             }}
-            aria-label="访问 LXDAO 官网"
+            aria-label={t('footer.lxdaoAria')}
           >
             <img
               src="/lxdao-logo.svg"
               alt="LXDAO"
               style={{ width: 18, height: 18, objectFit: 'contain' }}
             />
-            <span>Built with LXDAO</span>
+            <span>{t('footer.builtWith')}</span>
           </a>
 
           <div style={{ fontSize: '0.85rem', color: 'var(--neutral-500)' }}>

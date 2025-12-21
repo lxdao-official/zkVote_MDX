@@ -1,10 +1,10 @@
 // src/pages/ZKVotePage.tsx
-import { useState, useEffect, useRef } from 'react'
-import Content from '../content/MyFirstZKVote.mdx'
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { MDXWrapper } from '../mdx/MDXComponents'
 import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
 import Footer from '../components/Footer'
+import { useTranslation } from 'react-i18next'
 
 /**
  * 这个页面示例展示如何在 React + TypeScript 中直接 import 并 render 一个 .mdx 文件
@@ -15,10 +15,21 @@ import Footer from '../components/Footer'
  */
 
 export default function ZKVotePage() {
+  const { i18n, t } = useTranslation()
   const [isContentVisible, setIsContentVisible] = useState(false)
   const [heroOpacity, setHeroOpacity] = useState(1)
   const contentRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
+
+  const langKey = i18n.language?.toLowerCase().startsWith('zh') ? 'zh' : 'en'
+
+  const Content = useMemo(() => {
+    const importers = {
+      zh: () => import('../content/MyFirstZKVote.mdx'),
+      en: () => import('../content/MyFirstZKVote.en.mdx'),
+    } as const
+    return lazy(importers[langKey])
+  }, [langKey])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,7 +106,9 @@ export default function ZKVotePage() {
         }}
       >
         <MDXWrapper>
-          <Content />
+          <Suspense fallback={<div style={{ padding: 'var(--spacing-6)' }}>{t('common.loading')}</div>}>
+            <Content />
+          </Suspense>
         </MDXWrapper>
 
         <Footer />

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-label="End-to-end ZK voting flow: local proving, on-chain verification and tallying">
+  <rect x="0" y="0" width="1200" height="520" fill="white"/>
+
+  <text x="60" y="85" font-size="34" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif" fill="#111827" font-weight="700">
+    End-to-end ZK voting flow (simplified)
+  </text>
+  <text x="60" y="125" font-size="18" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif" fill="#374151">
+    Goal: prove “I’m eligible and vote only once”, without leaking identity secrets.
+  </text>
+
+  <g font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif">
+    <rect x="60" y="170" width="320" height="110" rx="16" fill="#ffffff" stroke="#111827" stroke-width="3"/>
+    <text x="90" y="215" font-size="20" fill="#111827" font-weight="700">1. Generate anonymous identity</text>
+    <text x="90" y="248" font-size="16" fill="#374151">identitySecret → commitment</text>
+
+    <rect x="440" y="170" width="320" height="110" rx="16" fill="#ffffff" stroke="#111827" stroke-width="3"/>
+    <text x="470" y="215" font-size="20" fill="#111827" font-weight="700">2. Join voter set</text>
+    <text x="470" y="248" font-size="16" fill="#374151">commitment into Merkle tree</text>
+
+    <rect x="820" y="170" width="320" height="110" rx="16" fill="#ffffff" stroke="#111827" stroke-width="3"/>
+    <text x="850" y="215" font-size="20" fill="#111827" font-weight="700">3. Prove locally</text>
+    <text x="850" y="248" font-size="16" fill="#374151">proof + nullifier</text>
+
+    <rect x="60" y="330" width="520" height="120" rx="16" fill="#ffffff" stroke="#111827" stroke-width="3"/>
+    <text x="90" y="378" font-size="20" fill="#111827" font-weight="700">4. Submit tx (public inputs)</text>
+    <text x="90" y="412" font-size="16" fill="#374151">root / nullifier / choice, etc. + proof</text>
+
+    <rect x="640" y="330" width="500" height="120" rx="16" fill="#ffffff" stroke="#111827" stroke-width="3"/>
+    <text x="670" y="378" font-size="20" fill="#111827" font-weight="700">5. Verify + tally</text>
+    <text x="670" y="412" font-size="16" fill="#374151">verify(proof) &amp;&amp; nullifier unused</text>
+  </g>
+
+  <g stroke="#111827" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M 380 225 L 440 225"/>
+    <path d="M 420 210 L 445 225 L 420 240"/>
+
+    <path d="M 760 225 L 820 225"/>
+    <path d="M 800 210 L 825 225 L 800 240"/>
+
+    <path d="M 980 280 C 980 310 720 310 320 330"/>
+    <path d="M 338 318 L 315 333 L 346 336"/>
+
+    <path d="M 580 390 L 640 390"/>
+    <path d="M 620 375 L 645 390 L 620 405"/>
+  </g>
+</svg>

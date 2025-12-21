@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next'
 import {
     useWriteContract,
     useWaitForTransactionReceipt,
@@ -31,6 +32,7 @@ function encodeVoteData(proposalId: number, optionId: number): string {
 export default function ChainVote() {
     const { isConnected, address } = useAccount();
     const chainId = useChainId();
+    const { t } = useTranslation()
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
     const [votedOptionId, setVotedOptionId] = useState<number | null>(null);
     const [votedOptionName, setVotedOptionName] = useState<string>('');
@@ -57,7 +59,7 @@ export default function ChainVote() {
 
     const handleVote = () => {
         if (selectedOption === null) {
-            alert('请先选择一个选项');
+            alert(t('chainVote.chooseOptionFirst'));
             return;
         }
         // 记录投票的选项信息
@@ -89,13 +91,13 @@ export default function ChainVote() {
         return (
             <div style={styles.container}>
                 <div style={styles.header}>
-                    <h3 style={styles.title}>🗳️ 链上投票体验</h3>
-                    <p style={styles.subtitle}>体验完全公开透明的区块链投票</p>
+                    <h3 style={styles.title}>{t('chainVote.title')}</h3>
+                    <p style={styles.subtitle}>{t('chainVote.subtitle')}</p>
                 </div>
                 <div style={styles.notConnected}>
-                    <p> 请先连接钱包以参与投票</p>
+                    <p> {t('chainVote.connectHint')}</p>
                     <p style={{ fontSize: '0.875rem', color: '#666' }}>
-                        点击页面顶部的「连接钱包」按钮
+                        {t('chainVote.connectHintDetail')}
                     </p>
                 </div>
             </div>
@@ -109,31 +111,31 @@ export default function ChainVote() {
         <div style={styles.container}>
             {/* 标题区 */}
             <div style={styles.header}>
-                <h3 style={styles.title}> 链上投票体验</h3>
-                <p style={styles.subtitle}>体验完全公开透明的区块链投票</p>
+                <h3 style={styles.title}> {t('chainVote.title')}</h3>
+                <p style={styles.subtitle}>{t('chainVote.subtitle')}</p>
             </div>
 
             {/* 当前钱包信息 */}
             <div style={styles.walletInfo}>
-                <span style={styles.walletLabel}>当前钱包:</span>
+                <span style={styles.walletLabel}>{t('chainVote.currentWallet')}</span>
                 <code style={styles.walletAddress}>
                     {address?.slice(0, 6)}...{address?.slice(-4)}
                 </code>
-                <span style={styles.warningBadge}> 投票记录将公开关联到此地址</span>
+                <span style={styles.warningBadge}> {t('chainVote.publicLinkWarning')}</span>
             </div>
 
             {/* 当前提案标题显示 */}
             <div style={styles.proposalTitle}>
-                <strong> 当前提案:</strong> {proposalTitle ? (proposalTitle as string) : '加载中...'}
+                <strong> {t('chainVote.currentProposal')}</strong> {proposalTitle ? (proposalTitle as string) : t('chainVote.loading')}
             </div>
 
             {/* 选项列表 */}
             <div style={styles.section}>
-                <label style={styles.label}>投票选项:</label>
+                <label style={styles.label}>{t('chainVote.voteOptions')}</label>
                 {isLoadingOptions ? (
-                    <p style={styles.loading}>加载中...</p>
+                    <p style={styles.loading}>{t('chainVote.loading')}</p>
                 ) : optionList.length === 0 ? (
-                    <p style={styles.empty}>暂无选项</p>
+                    <p style={styles.empty}>{t('chainVote.emptyOptions')}</p>
                 ) : (
                     <div style={styles.optionList}>
                         {optionList.map((option, index) => {
@@ -189,25 +191,29 @@ export default function ChainVote() {
                     ...(isPending || isConfirming ? styles.voteButtonDisabled : {}),
                 }}
             >
-                {isPending ? '⏳ 等待签名...' : isConfirming ? '⏳ 确认中...' : ' 提交投票'}
+                                {isPending
+                                    ? t('chainVote.waitingSignature')
+                                    : isConfirming
+                                        ? t('chainVote.confirming')
+                                        : ` ${t('chainVote.submitVote')}`}
             </button>
 
             {/* 状态提示 */}
             {error && (
                 <div style={styles.errorMessage}>
-                    ❌ 投票失败: {error.message.slice(0, 100)}...
+                    {t('chainVote.voteFailed')} {error.message.slice(0, 100)}...
                 </div>
             )}
             {isSuccess && hash && (
                 <div style={styles.txDetailContainer}>
                     <div style={styles.successHeader}>
                         <span style={styles.successIcon}>✅</span>
-                        <span>投票交易已上链！</span>
+                        <span>{t('chainVote.txMined')}</span>
                     </div>
                     
                     {/* 交易详情卡片 */}
                     <div style={styles.txCard}>
-                        <h4 style={styles.txCardTitle}> 交易详情（链上公开可查）</h4>
+                        <h4 style={styles.txCardTitle}> {t('chainVote.txDetailsTitle')}</h4>
                         
                         <div style={styles.txRow}>
                             <span style={styles.txLabel}>Transaction Hash:</span>
@@ -240,15 +246,15 @@ export default function ChainVote() {
                             rel="noopener noreferrer"
                             style={styles.explorerLink}
                         >
-                            🔗 在 Etherscan 上查看完整交易 →
+                            {t('chainVote.viewOnEtherscan')}
                         </a>
                     </div>
                     
                     {/* Input Data 解析 */}
                     <div style={styles.inputDataAnalysis}>
-                        <h4 style={styles.analysisTitle}>🔍 Input Data 解析</h4>
+                        <h4 style={styles.analysisTitle}>{t('chainVote.inputDataAnalysis')}</h4>
                         <p style={styles.analysisText}>
-                            交易的 Input Data 包含了你调用的函数和参数，任何人都可以解码：
+                            {t('chainVote.inputDataExplain')}
                         </p>
                         <div style={styles.dataBreakdown}>
                             <div style={styles.dataItem}>
@@ -261,23 +267,28 @@ export default function ChainVote() {
                             </div>
                             <div style={styles.dataItem}>
                                 <code style={styles.dataParam}>000...00{votedOptionId || 1}</code>
-                                <span style={styles.dataExplain}>→ 第2个参数：<strong>optionId = {votedOptionId || 1}</strong>（你投给了「{votedOptionName || '...'}」）</span>
+                                                                <span style={styles.dataExplain}>
+                                                                    {t('chainVote.param2Explain', {
+                                                                        optionId: votedOptionId || 1,
+                                                                        optionName: votedOptionName || '...',
+                                                                    })}
+                                                                </span>
                             </div>
                         </div>
                     </div>
                     
                     {/* 隐私泄露警告 */}
                     <div style={styles.privacyAlert}>
-                        <h4 style={styles.alertTitle}>⚠️ 隐私泄露分析</h4>
-                        <p style={styles.alertText}>从这笔交易中，任何人都可以获取以下信息：</p>
+                        <h4 style={styles.alertTitle}>{t('chainVote.privacyLeakTitle')}</h4>
+                        <p style={styles.alertText}>{t('chainVote.privacyLeakIntro')}</p>
                         <ul style={styles.alertList}>
-                            <li><strong>你的身份：</strong>地址 <code>{address?.slice(0, 10)}...</code> 参与了投票</li>
-                            <li><strong>投票时间：</strong>交易的区块时间戳精确记录了你何时投票</li>
-                            <li><strong>投票内容：</strong>你在提案 #1 中投给了选项 #{votedOptionId}「{votedOptionName}」</li>
-                            <li><strong>关联分析：</strong>如果你的地址在其他地方（交易所、社交媒体、ENS）与真实身份关联，投票偏好也将暴露</li>
+                            <li>{t('chainVote.privacyLeakIdentity', { addr: `${address?.slice(0, 10)}...` })}</li>
+                            <li>{t('chainVote.privacyLeakTime')}</li>
+                            <li>{t('chainVote.privacyLeakContent', { optionId: votedOptionId, optionName: votedOptionName })}</li>
+                            <li>{t('chainVote.privacyLeakLink')}</li>
                         </ul>
                         <p style={styles.alertConclusion}>
-                            💡 <strong>这就是为什么我们需要 ZK 投票</strong> —— 证明你有资格投票，但不泄露你是谁、投了什么。
+                            {t('chainVote.privacyLeakConclusion')}
                         </p>
                     </div>
                 </div>
@@ -285,13 +296,12 @@ export default function ChainVote() {
 
             {/* 隐私提示 */}
             <div style={styles.privacyNotice}>
-                <strong> 隐私提示:</strong>
+                <strong> {t('chainVote.privacyNoticeTitle')}</strong>
                 <p>
-                    在这种传统链上投票中，你的投票选择将与你的钱包地址永久关联。
-                    任何人都可以通过区块浏览器查看你的投票记录。
+                    {t('chainVote.privacyNoticeP1')}
                 </p>
                 <p>
-                    这正是我们接下来要用 ZK 证明解决的问题 —— 实现「可验证但匿名」的投票。
+                    {t('chainVote.privacyNoticeP2')}
                 </p>
             </div>
         </div>

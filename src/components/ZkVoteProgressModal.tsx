@@ -1,30 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { VotingFlowState, VotingStepId } from '../zk/useZkVotingFlow'
+import { useTranslation } from 'react-i18next'
 
-type StepContent = {
-  id: VotingStepId
-  title: string
-  description: string
-}
-
-const STEP_COPY: StepContent[] = [
-  { id: 'STEP1_PREPARE', title: '准备数据', description: '正在验证投票信息...' },
-  { id: 'STEP2_JOIN_GROUP', title: '加入提案群组', description: '正在调用 joinProposal...' },
-  { id: 'STEP3_SYNC_MEMBERS', title: '同步成员', description: '正在重建 Merkle Tree...' },
-  { id: 'STEP4_GENERATE_PROOF', title: '生成零知识证明', description: '浏览器本地计算，耗时 2-5 秒' },
-  { id: 'STEP5_SUBMIT_VOTE', title: '提交投票', description: '等待钱包确认交易...' },
-  { id: 'STEP6_CONFIRMATION', title: '区块确认', description: '等待网络确认，通常 10-30 秒' },
+const ALL_STEPS: VotingStepId[] = [
+  'STEP1_PREPARE',
+  'STEP2_JOIN_GROUP',
+  'STEP3_SYNC_MEMBERS',
+  'STEP4_GENERATE_PROOF',
+  'STEP5_SUBMIT_VOTE',
+  'STEP6_CONFIRMATION',
 ]
-
-const ERROR_COPY: Record<string, { title: string; action: string }> = {
-  ProposalExpired: { title: '投票已结束', action: '返回详情页' },
-  NotJoined: { title: '尚未加入提案', action: '重新加入' },
-  InsufficientGas: { title: 'Gas 余额不足', action: '获取测试币后重试' },
-  NetworkError: { title: '网络连接异常', action: '检查网络后重试' },
-  ProofFailed: { title: '证明生成失败', action: '重新生成证明' },
-  UserRejected: { title: '交易被用户取消', action: '重新发起投票' },
-}
 
 type Props = {
   isOpen: boolean
@@ -34,6 +20,8 @@ type Props = {
 }
 
 export default function ZkVoteProgressModal({ isOpen, onClose, steps, flowState }: Props) {
+  const { t } = useTranslation()
+
   const [portalContainer] = useState<HTMLElement | null>(() => {
     if (typeof document === 'undefined') return null
     const element = document.createElement('div')
@@ -55,26 +43,32 @@ export default function ZkVoteProgressModal({ isOpen, onClose, steps, flowState 
   const isSuccess = flowState.status === 'success'
   const isFailed = flowState.status === 'failed'
 
-  const filteredSteps = STEP_COPY.filter((step) => steps.includes(step.id))
-  const errorInfo = flowState.errorType ? ERROR_COPY[flowState.errorType] : null
+  const filteredSteps = ALL_STEPS.filter((stepId) => steps.includes(stepId))
+  const errorInfo =
+    flowState.errorType && typeof flowState.errorType === 'string'
+      ? {
+          title: t(`zkModal.errors.${flowState.errorType}.title`),
+          action: t(`zkModal.errors.${flowState.errorType}.action`),
+        }
+      : null
 
   return createPortal(
     <div style={styles.backdrop}>
       <div style={styles.modal}>
         <div style={styles.modalHeader}>
-          <h3 style={{ margin: 0 }}>🛠 ZK 投票流程</h3>
+          <h3 style={{ margin: 0 }}>{t('zkModal.title')}</h3>
           <button style={styles.closeButton} onClick={onClose}>
             ✕
           </button>
         </div>
-        <p style={styles.helper}>请勿关闭或刷新页面，直到所有步骤完成。</p>
+        <p style={styles.helper}>{t('zkModal.helper')}</p>
 
         <ol style={styles.stepList}>
-          {filteredSteps.map((step, index) => {
+          {filteredSteps.map((stepId, index) => {
             const completed = index < currentIndex || (isSuccess && index === filteredSteps.length - 1)
             const active = index === currentIndex && flowState.status === 'running'
             return (
-              <li key={step.id} style={styles.stepItem}>
+              <li key={stepId} style={styles.stepItem}>
                 <div
                   style={{
                     ...styles.stepIcon,
@@ -85,8 +79,8 @@ export default function ZkVoteProgressModal({ isOpen, onClose, steps, flowState 
                   {completed ? '✓' : index + 1}
                 </div>
                 <div>
-                  <div style={styles.stepTitle}>{step.title}</div>
-                  <div style={styles.stepDesc}>{step.description}</div>
+                  <div style={styles.stepTitle}>{t(`zkModal.steps.${stepId}.title`)}</div>
+                  <div style={styles.stepDesc}>{t(`zkModal.steps.${stepId}.description`)}</div>
                 </div>
               </li>
             )
@@ -95,7 +89,12 @@ export default function ZkVoteProgressModal({ isOpen, onClose, steps, flowState 
 
         {isSuccess && (
           <div style={styles.successBox}>
-            ✅ {flowState.lastSuccessTx?.type === 'vote' ? '投票' : '加入'}成功！交易已确认，感谢你的参与。
+            {t('zkModal.success', {
+              action:
+                flowState.lastSuccessTx?.type === 'vote'
+                  ? t('zkModal.actionVote')
+                  : t('zkModal.actionJoin'),
+            })}
             {flowState.lastSuccessTx && (
               <a
                 href={`https://sepolia.etherscan.io/tx/${flowState.lastSuccessTx.hash}`}
@@ -103,7 +102,7 @@ export default function ZkVoteProgressModal({ isOpen, onClose, steps, flowState 
                 rel="noopener noreferrer"
                 style={styles.txLink}
               >
-                查看交易详情 →
+                {t('zkModal.viewTx')}
               </a>
             )}
           </div>

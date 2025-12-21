@@ -2,10 +2,12 @@
 import { useAccount, useConnect, useDisconnect, useEnsName, useBalance } from 'wagmi'
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 
 export default function ConnectWallet() {
   const { address, isConnected, chain } = useAccount()
   const { connect, connectors, isPending } = useConnect()
+  const { t } = useTranslation()
   const { disconnect } = useDisconnect()
   const { data: ensName } = useEnsName({ address })
   const { data: balance } = useBalance({ address })
@@ -194,7 +196,7 @@ export default function ConnectWallet() {
                       marginBottom: 'var(--spacing-1)',
                       fontWeight: 'var(--font-weight-semibold)'
                     }}>
-                      网络
+                      {t('wallet.network')}
                     </label>
                     <div style={{
                       display: 'inline-block',
@@ -219,7 +221,7 @@ export default function ConnectWallet() {
                     marginBottom: 'var(--spacing-1)',
                     fontWeight: 'var(--font-weight-semibold)'
                   }}>
-                    {ensName ? 'ENS 名称' : '钱包地址'}
+                    {ensName ? t('wallet.ensName') : t('wallet.walletAddress')}
                   </label>
                   <div style={{
                     padding: 'var(--spacing-2) var(--spacing-3)',
@@ -245,7 +247,7 @@ export default function ConnectWallet() {
                     marginBottom: 'var(--spacing-1)',
                     fontWeight: 'var(--font-weight-semibold)'
                   }}>
-                    余额
+                    {t('wallet.balance')}
                   </label>
                   <div style={{
                     padding: 'var(--spacing-2) var(--spacing-3)',
@@ -301,7 +303,7 @@ export default function ConnectWallet() {
                   e.currentTarget.style.boxShadow = '0 4px 0 #dc2626'
                 }}
               >
-                断开连接
+                {t('wallet.disconnect')}
               </button>
             </div>
           </div>,
@@ -372,7 +374,7 @@ export default function ConnectWallet() {
         }
       }}
     >
-      {isPending ? '连接中...' : '连接钱包'}
+      {isPending ? t('wallet.connecting') : t('wallet.connect')}
     </button>
   )
 }

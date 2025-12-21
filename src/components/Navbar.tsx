@@ -1,5 +1,6 @@
 // src/components/Navbar.tsx
 import ConnectWallet from './ConnectWallet'
+import LanguageSwitcher from './LanguageSwitcher'
 
 export default function Navbar() {
   return (
@@ -37,8 +38,11 @@ export default function Navbar() {
             My First <span style={{ color: 'var(--primary-blue)' }}>ZKVote</span>
           </h1>
         </div>
-        {/* 连接钱包按钮 */}
-        <ConnectWallet />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-3)' }}>
+          <LanguageSwitcher />
+          {/* 连接钱包按钮 */}
+          <ConnectWallet />
+        </div>
       </div>
     </nav>
   )

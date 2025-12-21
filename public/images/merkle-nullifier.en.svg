@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-label="Merkle tree and nullifier: commitments form the voter set; nullifier prevents double voting">
+  <rect x="0" y="0" width="1200" height="520" fill="white"/>
+
+  <text x="60" y="85" font-size="34" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif" fill="#111827" font-weight="700">
+    Identity commitments, Merkle tree, and nullifier
+  </text>
+  <text x="60" y="125" font-size="18" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif" fill="#374151">
+    Root is stored on-chain; the proof uses a Merkle path to show membership; nullifier prevents double voting.
+  </text>
+
+  <!-- Left: Merkle tree -->
+  <g stroke="#111827" stroke-width="3" fill="#ffffff">
+    <rect x="90" y="360" width="160" height="60" rx="14"/>
+    <rect x="270" y="360" width="160" height="60" rx="14"/>
+    <rect x="450" y="360" width="160" height="60" rx="14"/>
+    <rect x="630" y="360" width="160" height="60" rx="14"/>
+
+    <rect x="180" y="260" width="220" height="70" rx="14"/>
+    <rect x="540" y="260" width="220" height="70" rx="14"/>
+
+    <rect x="360" y="170" width="300" height="80" rx="16"/>
+
+    <line x1="170" y1="360" x2="240" y2="330"/>
+    <line x1="350" y1="360" x2="340" y2="330"/>
+    <line x1="530" y1="360" x2="600" y2="330"/>
+    <line x1="710" y1="360" x2="700" y2="330"/>
+
+    <line x1="290" y1="260" x2="440" y2="250"/>
+    <line x1="650" y1="260" x2="580" y2="250"/>
+  </g>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="14" fill="#111827">
+    <text x="110" y="396">c1</text>
+    <text x="290" y="396">c2</text>
+    <text x="470" y="396">c3</text>
+    <text x="650" y="396">c4</text>
+
+    <text x="205" y="302">Hash(c1,c2)</text>
+    <text x="565" y="302">Hash(c3,c4)</text>
+
+    <text x="405" y="216">root</text>
+  </g>
+
+  <text x="90" y="458" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif" fill="#374151">
+    Commitments (c1..c4) form the voter set; root is stored on-chain.
+  </text>
+
+  <!-- Right: Nullifier -->
+  <rect x="820" y="190" width="320" height="230" rx="18" fill="#ffffff" stroke="#111827" stroke-width="3"/>
+  <text x="850" y="235" font-size="20" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif" fill="#111827" font-weight="700">
+    nullifier (one-time ticket)
+  </text>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="16" fill="#111827">
+    <text x="850" y="280">Hash(identitySecret,</text>
+    <text x="850" y="305">     electionId)</text>
+  </g>
+  <text x="850" y="352" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif" fill="#374151">
+    Contract checks:
+  </text>
+  <text x="850" y="380" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif" fill="#374151">
+    1) proof valid  2) nullifier unused
+  </text>
+</svg>

@@ -1,0 +1,288 @@
+# My First ZKVote: From On-chain Voting to Zero-Knowledge Proofs
+
+<Figure
+  src="/images/zkvote-cover.en.svg"
+  alt="ZKVote tutorial overview: on-chain voting vs ZK anonymous voting"
+  caption="First, experience a fully public on-chain vote. Then, complete an anonymous vote powered by Zero-Knowledge Proofs."
+/>
+
+In this tutorial you will do two things:
+
+1. Experience a **fully public on-chain vote** to understand why blockchains are great for verifiability—and where privacy breaks.
+2. Complete an anonymous vote based on **Zero-Knowledge Proofs (ZKP)**, and walk through the full flow: “generate proof → submit transaction → on-chain verification”.
+
+The goal is to explain the *mechanics* behind ZK voting in a practical, engineering-friendly way—not just treat it as a black box.
+
+## 1. Why vote on a blockchain?
+
+Traditional electronic voting systems often suffer from:
+
+- Having to trust a centralized server to record and count votes correctly.
+- Difficulty proving to the public that “the counting process was not tampered with”.
+- Audits that rely heavily on specialists; ordinary voters cannot independently verify.
+
+Blockchains offer a natural alternative:
+
+- **Transparency**: every vote is recorded on-chain and can be inspected and recomputed.
+- **Immutability**: once confirmed, rewriting history is economically hard.
+- **Automation**: smart contracts enforce counting and result publication.
+
+That’s why people talk about **End-to-End Verifiability**: from casting to tallying to publishing, anyone can verify each step.
+
+But the moment we make everything transparent, we pay a privacy price.
+
+<Figure
+  src="/images/onchain-verifiability.en.svg"
+  alt="On-chain verifiability diagram"
+  caption="Each vote is a transaction: auditable and verifiable, but also linkable."
+/>
+
+### 1.1 Make your first on-chain vote
+
+- Connect your wallet
+- Switch network to Sepolia
+- Choose an option
+- Submit the transaction
+
+<ChainVote />
+
+## 2. The privacy problem of traditional on-chain voting
+
+In the simplest on-chain design, one address corresponds to one ballot:
+
+- Voting means sending a transaction that calls something like `vote(proposalId, choice)`.
+- The transaction publicly reveals:
+  - `from` (the voter’s wallet address)
+  - `to` (the voting contract)
+  - input data (which can be decoded to learn your choice)
+
+With a block explorer, anyone can learn:
+
+- How many times an address voted
+- Which proposals it voted on
+- Which side it chose
+
+If that address is linked to your real-world identity elsewhere (exchange account, social profile, ENS, etc.), your voting preference becomes linkable too.
+
+This creates a classic tension:
+
+> We want voting to be verifiable, but we also want voters to be anonymous.
+
+This is where Zero-Knowledge Proofs come in.
+
+## 3. Zero-Knowledge Proofs 101: what you prove and to whom?
+
+Zero-Knowledge Proofs (ZKPs) let you prove a statement is true **without revealing the underlying secret**.
+
+In voting, a typical statement is:
+
+> “I am an eligible voter for this election, and I’m voting only once.”
+
+The whole point is to keep **verifiability** while restoring **privacy**.
+
+### 3.1 Prover / Verifier model
+
+- **Prover**: holds a secret (your private identity/witness) and generates a proof.
+- **Verifier**: checks the proof and becomes convinced the statement is true.
+
+### 3.2 Statement vs Witness
+
+- **Statement**: the public claim being proven.
+- **Witness**: the private inputs that make the statement true.
+
+<Figure
+  src="/images/public-vs-witness.en.svg"
+  alt="Public inputs vs private witness"
+  caption="The verifier only sees public inputs and the proof, but is convinced some private witness satisfies the constraints."
+/>
+
+### 3.3 Three core properties
+
+Any ZKP system should satisfy:
+
+1. **Completeness**: honest proofs verify.
+2. **Soundness**: cheating proofs are infeasible.
+3. **Zero-knowledge**: the proof leaks nothing beyond “the statement is true”.
+
+<Figure
+  src="/images/zk-properties.en.svg"
+  alt="Three properties of ZK proofs"
+  caption="Completeness, soundness, and zero-knowledge—especially important for voting."
+/>
+
+### 3.4 Make your first ZK vote
+
+- Connect your wallet
+- Switch network to Sepolia
+- Click “Generate anonymous identity” (creates `identitySecret` locally and derives an identity commitment)
+- Click “Join proposal” (registers your identity commitment into the voter set)
+- Choose an option and submit the vote
+
+<Figure
+  src="/ZK_1.png"
+  alt="ZK voting UI overview"
+  caption="UI overview: generate identity → join proposal → submit an anonymous vote."
+/>
+
+<ZKChainVote />
+
+<Card accent>
+  <p>
+    <strong>Tip:</strong> after submitting, you’ll see a progress modal that advances step-by-step.
+    Proof generation happens <strong>locally in your browser</strong>, so it’s slower than a normal transaction (often 2–5s depending on device performance).
+  </p>
+</Card>
+
+### 3.5 What happens during the ZK vote?
+
+<Figure
+  src="/images/zk-flow-v2.en.svg"
+  alt="ZK voting flow diagram"
+  caption="Local proving + on-chain verification + anti double-vote (nullifier)."
+/>
+
+At a high level:
+
+1. **Generate identity secret and commitment**
+2. **Fetch the latest voter set state** (Merkle root)
+3. **Generate a proof locally** (with public inputs + private witness)
+4. **Submit the vote transaction** (public inputs + proof)
+5. **On-chain verification + tallying** (and mark the nullifier as used)
+6. **Auditability** (anyone can verify the transaction succeeded, without learning your private inputs)
+
+### 3.6 Interactive vs Non-interactive, zk-SNARK vs zk-STARK
+
+Blockchains need **non-interactive** proofs (NIZK): a single proof object that can be verified on-chain.
+
+Two well-known families are zk-SNARKs and zk-STARKs:
+
+<Figure
+  src="/images/snark-stark.en.svg"
+  alt="Conceptual comparison of zk-SNARK and zk-STARK"
+  caption="Concept-level intuition; concrete trade-offs depend on the proving system and parameters."
+/>
+
+## 4. A typical zk-SNARK workflow
+
+Different libraries vary, but the workflow is usually:
+
+### 4.1 Write a circuit / constraint system
+
+You encode the voting rules as constraints, for example:
+
+1. You are in the voter set (Merkle membership)
+2. Your vote is a valid option
+3. Your nullifier is derived from your identity secret and the election id
+
+### 4.2 Setup: proving key (PK) and verification key (VK)
+
+Many SNARK systems require a setup/trusted ceremony. In this tutorial we assume setup has already happened and the verifier has access to the VK.
+
+### 4.3 Prove locally
+
+The browser collects:
+
+- **Public inputs**: electionId, Merkle root, nullifierHash, etc.
+- **Private witness**: identitySecret, Merkle path, your vote
+
+Then it runs the prover to output a short proof.
+
+### 4.4 Verify on-chain
+
+The contract verifies the proof and checks the nullifier hasn’t been used:
+
+```solidity
+function vote(Proof proof, PublicInputs publicInputs) external {
+  // 1) verify proof
+  // 2) check nullifier unused
+  // 3) update tally
+}
+```
+
+## 5. ZKVote design: identity, voter set, and nullifier
+
+This demo uses a membership-style design (similar to Semaphore-like patterns).
+
+### 5.1 Identity registration and voter set (Merkle tree)
+
+<Figure
+  src="/images/merkle-nullifier.en.svg"
+  alt="Merkle tree and nullifier"
+  caption="Root is on-chain; membership is proven with a Merkle path; nullifier prevents double voting."
+/>
+
+### 5.2 Nullifier: preventing double-votes
+
+Conceptually:
+
+```text
+nullifier = Hash(identitySecret, electionId)
+```
+
+The proof enforces that the nullifier is derived correctly, while keeping `identitySecret` private.
+
+## 6. After you submit: what is visible on-chain?
+
+You will still see a transaction **from your wallet address**. ZK does *not* hide who sent the transaction.
+
+What ZK changes is what can be learned from the input data:
+
+- Observers can see you called the ZKVote contract.
+- Observers cannot derive your identity secret, your Merkle path position, or your plain vote choice from the proof.
+
+### 6.1 Reading Input Data (conceptual)
+
+Depending on the contract, you may see fields like:
+
+- `proof`
+- `root`
+- `nullifierHash`
+- `voteCommitment`
+
+<Card>
+  <p>
+    <strong>What you can independently verify:</strong>
+    you can check the transaction succeeded, events were emitted, and the nullifier is marked as used.
+    That’s the “auditable but private” balance.
+  </p>
+</Card>
+
+### 6.2 Progress modal steps → what they map to
+
+1. Prepare parameters
+2. Join proposal group
+3. Sync members / rebuild Merkle tree
+4. Generate ZK proof locally
+5. Submit vote transaction
+6. Wait for confirmation
+
+## 7. FAQ
+
+### 7.1 Why do I need to join the proposal first?
+
+Because your identity commitment must be part of the allowed voter set (Merkle tree) before you can prove membership.
+
+### 7.2 Why is proof generation slower?
+
+Normal voting is just signing and sending a transaction. ZK voting runs cryptographic proving locally, which is heavier.
+
+### 7.3 My transaction is pending for a long time
+
+- Ensure you are on Sepolia
+- Ensure you have enough test ETH for gas
+- Try speeding up/replacing the transaction in your wallet
+
+### 7.4 Common proof generation failures
+
+- Refreshing the page and losing local identity
+- Membership data not synced
+- Low memory / slow device
+
+## 8. What you will take away
+
+After completing this tutorial, you should be able to explain:
+
+1. Why on-chain voting is verifiable but not private
+2. How ZK proofs restore privacy while keeping auditability
+3. The end-to-end flow: identity → proof → on-chain verification → public audit
+4. Practical engineering assumptions and failure modes

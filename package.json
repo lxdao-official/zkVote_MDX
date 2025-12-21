@@ -16,8 +16,10 @@
     "@semaphore-protocol/identity": "^4.14.0",
     "@semaphore-protocol/proof": "^4.14.0",
     "@tanstack/react-query": "^5.90.11",
+    "i18next": "^25.7.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-i18next": "^16.5.0",
     "viem": "^2.40.3",
     "wagmi": "^3.0.1"
   },

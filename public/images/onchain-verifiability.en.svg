@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-label="On-chain verifiability: block explorers can query and recompute">
+  <rect x="0" y="0" width="1200" height="520" fill="white"/>
+
+  <text x="60" y="85" font-size="34" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif" fill="#111827" font-weight="700">
+    On-chain voting = public transactions + independent recomputation
+  </text>
+  <text x="60" y="125" font-size="18" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif" fill="#374151">
+    Each vote is a transaction: anyone can query, verify, and recompute the result with a block explorer.
+  </text>
+
+  <!-- Explorer frame -->
+  <rect x="60" y="160" width="1080" height="300" rx="18" fill="#ffffff" stroke="#111827" stroke-width="3"/>
+
+  <!-- Header bar -->
+  <rect x="60" y="160" width="1080" height="56" rx="18" fill="#ffffff" stroke="#111827" stroke-width="0"/>
+  <line x1="60" y1="216" x2="1140" y2="216" stroke="#111827" stroke-width="2"/>
+
+  <text x="90" y="198" font-size="18" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif" fill="#111827" font-weight="700">
+    Transactions
+  </text>
+
+  <!-- Rows -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="16" fill="#111827">
+    <text x="90" y="260">from: 0xA1...9F2B</text>
+    <text x="420" y="260">to: 0xVote...c0de</text>
+    <text x="720" y="260">method: vote(choice=1)</text>
+
+    <text x="90" y="310">from: 0xB7...1C4D</text>
+    <text x="420" y="310">to: 0xVote...c0de</text>
+    <text x="720" y="310">method: vote(choice=0)</text>
+
+    <text x="90" y="360">from: 0xCC...88E0</text>
+    <text x="420" y="360">to: 0xVote...c0de</text>
+    <text x="720" y="360">method: vote(choice=1)</text>
+  </g>
+
+  <text x="90" y="430" font-size="16" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif" fill="#374151">
+    Benefit: transparent &amp; auditable; cost: voting behavior is tightly linked to the address.
+  </text>
+</svg>
