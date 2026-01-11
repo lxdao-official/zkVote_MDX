@@ -13,32 +13,32 @@ export const PixelAvatar = ({ role, isDead }: { role: 'villager' | 'werewolf' | 
 
   return (
     <svg width="64" height="64" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style={{ imageRendering: 'pixelated' }}>
-      {/* Background */}
-      <rect x="2" y="2" width="12" height="12" fill={getColor()} />
+      {/* 背景 */}
+      <rect x="3" y="3" width="10" height="10" fill={getColor()} />
       
-      {/* Face */}
-      <rect x="4" y="4" width="8" height="8" fill="#ffccaa" />
+      {/* 脸部 */}
+      <rect x="5" y="5" width="6" height="6" fill="#ffccaa" />
       
-      {/* Eyes */}
-      <rect x="5" y="6" width="2" height="2" fill="black" />
-      <rect x="9" y="6" width="2" height="2" fill="black" />
+      {/* 眼睛 */}
+      <rect x="6" y="7" width="1" height="1" fill="black" />
+      <rect x="9" y="7" width="1" height="1" fill="black" />
       
-      {/* Mouth */}
+      {/* 嘴巴 */}
       {role === 'werewolf' && !isDead ? (
         <>
-          <rect x="5" y="9" width="6" height="1" fill="black" />
-          <rect x="5" y="10" width="1" height="1" fill="white" />
-          <rect x="10" y="10" width="1" height="1" fill="white" />
+          <rect x="6" y="9" width="4" height="1" fill="black" />
+          <rect x="6" y="10" width="1" height="1" fill="white" />
+          <rect x="9" y="10" width="1" height="1" fill="white" />
         </>
       ) : (
-        <rect x="6" y="10" width="4" height="1" fill="black" />
+        <rect x="7" y="10" width="2" height="1" fill="black" />
       )}
 
-      {/* Dead Overlay */}
+      {/* 死亡覆盖层 */}
       {isDead && (
         <>
-          <line x1="3" y1="3" x2="13" y2="13" stroke="red" strokeWidth="1" />
-          <line x1="13" y1="3" x2="3" y2="13" stroke="red" strokeWidth="1" />
+          <line x1="4" y1="4" x2="12" y2="12" stroke="red" strokeWidth="1" />
+          <line x1="12" y1="4" x2="4" y2="12" stroke="red" strokeWidth="1" />
         </>
       )}
     </svg>

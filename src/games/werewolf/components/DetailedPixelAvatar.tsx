@@ -34,216 +34,253 @@ export const DetailedPixelAvatar = ({ role, isDead, size = 64, avatarId = 0 }: {
 
   const renderVillager = () => (
     <>
-      {/* Hat */}
-      <P x={8} y={4} w={16} h={6} color={colors.hairVillager} />
-      <P x={6} y={8} w={20} h={2} color={colors.hairVillager} />
+      {/* 帽子 */}
+      <P x={10} y={4} w={12} h={2} color={colors.hairVillager} />
+      <P x={8} y={6} w={16} h={2} color={colors.hairVillager} />
+      <P x={7} y={8} w={18} h={2} color={colors.hairVillager} />
       
-      {/* Face */}
+      {/* 脸部 */}
       <P x={10} y={10} w={12} h={10} color={colors.skin} />
-      <P x={10} y={10} w={2} h={4} color={colors.skinShadow} /> {/* Side shadow */}
-
-      {/* Eyes */}
-      <P x={12} y={14} w={2} h={2} color={colors.eye} />
-      <P x={18} y={14} w={2} h={2} color={colors.eye} />
       
-      {/* Mouth */}
-      <P x={14} y={18} w={4} h={1} color="#a0522d" />
-
-      {/* Body */}
-      <P x={8} y={20} w={16} h={12} color={colors.clothVillager} />
-      <P x={14} y={20} w={4} h={12} color="#2980b9" /> {/* Scarf/Detail */}
+      {/* 眼睛 */}
+      <P x={12} y={13} w={2} h={2} color={colors.eye} />
+      <P x={18} y={13} w={2} h={2} color={colors.eye} />
       
-      {/* Arms */}
-      <P x={6} y={21} w={2} h={8} color={colors.skin} />
-      <P x={24} y={21} w={2} h={8} color={colors.skin} />
+      {/* 嘴巴 */}
+      <P x={14} y={17} w={4} h={1} color="#a0522d" />
+
+      {/* 身体 */}
+      <P x={9} y={20} w={14} h={10} color={colors.clothVillager} />
+      <P x={14} y={20} w={4} h={10} color="#2980b9" /> {/* 围巾/细节 */}
+      
+      {/* 手臂 */}
+      <P x={7} y={21} w={2} h={7} color={colors.skin} />
+      <P x={23} y={21} w={2} h={7} color={colors.skin} />
+      
+      {/* 腿 */}
+      <P x={12} y={30} w={3} h={2} color="#34495e" />
+      <P x={17} y={30} w={3} h={2} color="#34495e" />
     </>
   );
 
   const renderSeer = () => (
     <>
-      {/* Hood Back */}
-      <P x={6} y={4} w={20} h={20} color="#6c3483" />
+      {/* 兜帽背景 */}
+      <P x={8} y={4} w={16} h={18} color="#6c3483" />
       
-      {/* Face */}
-      <P x={10} y={8} w={12} h={10} color={colors.skin} />
+      {/* 脸部 */}
+      <P x={10} y={10} w={12} h={10} color={colors.skin} />
       
-      {/* Eyes (Mystic) */}
-      <P x={12} y={12} w={2} h={2} color="#8e44ad" />
-      <P x={18} y={12} w={2} h={2} color="#8e44ad" />
+      {/* 眼睛 (神秘) */}
+      <P x={12} y={13} w={2} h={2} color="#8e44ad" />
+      <P x={18} y={13} w={2} h={2} color="#8e44ad" />
       
-      {/* Beard */}
-      <P x={10} y={16} w={12} h={6} color="#ecf0f1" />
+      {/* 胡须 */}
+      <P x={10} y={17} w={12} h={3} color="#ecf0f1" />
       
-      {/* Hood Front/Rim */}
+      {/* 兜帽边缘 */}
       <P x={8} y={6} w={16} h={2} color="#8e44ad" />
-      <P x={8} y={6} w={2} h={14} color="#8e44ad" />
-      <P x={22} y={6} w={2} h={14} color="#8e44ad" />
+      <P x={8} y={8} w={2} h={12} color="#8e44ad" />
+      <P x={22} y={8} w={2} h={12} color="#8e44ad" />
 
-      {/* Body */}
-      <P x={8} y={22} w={16} h={10} color={colors.clothSeer} />
+      {/* 身体 */}
+      <P x={9} y={20} w={14} h={10} color={colors.clothSeer} />
       
-      {/* Crystal Ball */}
-      <P x={20} y={24} w={8} h={8} color="#3498db" />
-      <P x={22} y={25} w={2} h={2} color="#fff" /> {/* Shine */}
+      {/* 水晶球 */}
+      <P x={23} y={24} w={6} h={6} color="#3498db" />
+      <P x={24} y={25} w={2} h={2} color="#fff" /> {/* 光泽 */}
+      
+      {/* 腿 */}
+      <P x={12} y={30} w={3} h={2} color="#5d4e7a" />
+      <P x={17} y={30} w={3} h={2} color="#5d4e7a" />
     </>
   );
 
   const renderWerewolf = () => (
     <>
-      {/* Ears */}
-      <P x={6} y={2} w={4} h={6} color={colors.hairWolf} />
-      <P x={22} y={2} w={4} h={6} color={colors.hairWolf} />
+      {/* 耳朵 */}
+      <P x={7} y={3} w={4} h={5} color={colors.hairWolf} />
+      <P x={21} y={3} w={4} h={5} color={colors.hairWolf} />
       
-      {/* Head */}
-      <P x={8} y={6} w={16} h={14} color={colors.hairWolf} />
-      <P x={6} y={10} w={20} h={8} color={colors.hairWolf} />
+      {/* 头部 */}
+      <P x={9} y={6} w={14} h={12} color={colors.hairWolf} />
+      <P x={7} y={10} w={18} h={8} color={colors.hairWolf} />
       
-      {/* Eyes (Glowing Red) */}
-      <P x={10} y={12} w={3} h={3} color={colors.eyeWolf} />
-      <P x={19} y={12} w={3} h={3} color={colors.eyeWolf} />
+      {/* 眼睛 (红色发光) */}
+      <P x={11} y={12} w={3} h={3} color={colors.eyeWolf} />
+      <P x={18} y={12} w={3} h={3} color={colors.eyeWolf} />
       
-      {/* Snout */}
-      <P x={12} y={16} w={8} h={6} color="#333" />
-      <P x={13} y={20} w={1} h={2} color="#fff" /> {/* Fang */}
-      <P x={18} y={20} w={1} h={2} color="#fff" /> {/* Fang */}
+      {/* 鼻嘴 */}
+      <P x={13} y={16} w={6} h={4} color="#333" />
+      <P x={14} y={19} w={1} h={1} color="#fff" /> {/* 獠牙 */}
+      <P x={17} y={19} w={1} h={1} color="#fff" /> {/* 獠牙 */}
 
-      {/* Body (Hunched) */}
-      <P x={6} y={20} w={20} h={12} color={colors.clothWolf} />
+      {/* 身体 (弓背) */}
+      <P x={7} y={20} w={18} h={10} color={colors.clothWolf} />
       
-      {/* Claws */}
-      <P x={2} y={22} w={4} h={4} color="#7f8c8d" />
-      <P x={26} y={22} w={4} h={4} color="#7f8c8d" />
+      {/* 爪子 */}
+      <P x={3} y={22} w={4} h={6} color="#7f8c8d" />
+      <P x={25} y={22} w={4} h={6} color="#7f8c8d" />
+      
+      {/* 腿 */}
+      <P x={10} y={30} w={4} h={2} color="#1a1a1a" />
+      <P x={18} y={30} w={4} h={2} color="#1a1a1a" />
     </>
   );
 
   const renderWitch = () => (
     <>
-      {/* Hat (Pointy) */}
-      <P x={10} y={2} w={12} h={2} color={colors.hairWitch} />
-      <P x={12} y={0} w={8} h={2} color={colors.hairWitch} />
-      <P x={6} y={4} w={20} h={2} color={colors.hairWitch} />
+      {/* 帽子 (尖顶) */}
+      <P x={14} y={1} w={4} h={2} color={colors.hairWitch} />
+      <P x={12} y={3} w={8} h={2} color={colors.hairWitch} />
+      <P x={10} y={5} w={12} h={2} color={colors.hairWitch} />
+      <P x={8} y={7} w={16} h={2} color={colors.hairWitch} />
       
-      {/* Hair */}
-      <P x={8} y={6} w={16} h={14} color="#34495e" />
+      {/* 头发 */}
+      <P x={9} y={9} w={14} h={4} color="#34495e" />
       
-      {/* Face */}
-      <P x={10} y={8} w={12} h={10} color={colors.skin} />
+      {/* 脸部 */}
+      <P x={10} y={10} w={12} h={10} color={colors.skin} />
       
-      {/* Eyes */}
-      <P x={12} y={12} w={2} h={2} color={colors.eye} />
-      <P x={18} y={12} w={2} h={2} color={colors.eye} />
+      {/* 眼睛 */}
+      <P x={12} y={13} w={2} h={2} color={colors.eye} />
+      <P x={18} y={13} w={2} h={2} color={colors.eye} />
       
-      {/* Robe */}
-      <P x={8} y={20} w={16} h={12} color={colors.clothWitch} />
-      <P x={14} y={20} w={4} h={12} color="#9b59b6" />
+      {/* 嘴巴 */}
+      <P x={14} y={17} w={4} h={1} color="#9b59b6" />
       
-      {/* Potions */}
-      <P x={4} y={22} w={4} h={6} color={colors.potionRed} /> {/* Poison */}
-      <P x={5} y={21} w={2} h={1} color="#fff" /> {/* Cork */}
+      {/* 长袍 */}
+      <P x={9} y={20} w={14} h={10} color={colors.clothWitch} />
+      <P x={14} y={20} w={4} h={10} color="#9b59b6" />
       
-      <P x={24} y={22} w={4} h={6} color={colors.potionGreen} /> {/* Heal */}
-      <P x={25} y={21} w={2} h={1} color="#fff" /> {/* Cork */}
+      {/* 药水瓶 */}
+      <P x={5} y={23} w={3} h={5} color={colors.potionRed} /> {/* 毒药 */}
+      <P x={5} y={22} w={3} h={1} color="#333" /> {/* 瓶塞 */}
+      
+      <P x={24} y={23} w={3} h={5} color={colors.potionGreen} /> {/* 治疗 */}
+      <P x={24} y={22} w={3} h={1} color="#333" /> {/* 瓶塞 */}
+      
+      {/* 腿 */}
+      <P x={12} y={30} w={3} h={2} color="#6c3483" />
+      <P x={17} y={30} w={3} h={2} color="#6c3483" />
     </>
   );
 
-  // 8种不同风格的64位像素角色（隐藏真实身份）
+  // 8种不同风格的32x32像素角色（隐藏真实身份）
   const renderUnknownVariant = (variant: number) => {
     const styles = [
       // Style 0: 骑士
       () => (
         <>
-          <P x={10} y={4} w={12} h={4} color="#c0c0c0" /> {/* Helmet */}
-          <P x={8} y={8} w={16} h={2} color="#a8a8a8" />
-          <P x={12} y={10} w={8} h={8} color="#f5deb3" /> {/* Face */}
-          <P x={14} y={13} w={2} h={2} color="#000" />
-          <P x={18} y={13} w={2} h={2} color="#000" />
-          <P x={8} y={18} w={16} h={14} color="#708090" /> {/* Armor */}
-          <P x={14} y={20} w={4} h={8} color="#ffd700" /> {/* Shield */}
+          <P x={10} y={5} w={12} h={3} color="#c0c0c0" /> {/* 头盔 */}
+          <P x={9} y={8} w={14} h={2} color="#a8a8a8" />
+          <P x={11} y={10} w={10} h={8} color="#f5deb3" /> {/* 脸部 */}
+          <P x={13} y={13} w={2} h={2} color="#000" />
+          <P x={17} y={13} w={2} h={2} color="#000" />
+          <P x={9} y={18} w={14} h={12} color="#708090" /> {/* 盔甲 */}
+          <P x={14} y={21} w={4} h={6} color="#ffd700" /> {/* 盾牌 */}
+          <P x={12} y={30} w={3} h={2} color="#696969" />
+          <P x={17} y={30} w={3} h={2} color="#696969" />
         </>
       ),
       // Style 1: 法师
       () => (
         <>
-          <P x={12} y={2} w={8} h={2} color="#4169e1" /> {/* Hat tip */}
-          <P x={10} y={4} w={12} h={4} color="#4169e1" />
-          <P x={8} y={8} w={16} h={2} color="#4169e1" /> {/* Hat brim */}
-          <P x={11} y={10} w={10} h={8} color="#ffe4c4" /> {/* Face */}
+          <P x={14} y={2} w={4} h={2} color="#4169e1" /> {/* 帽尖 */}
+          <P x={12} y={4} w={8} h={2} color="#4169e1" />
+          <P x={10} y={6} w={12} h={2} color="#4169e1" />
+          <P x={9} y={8} w={14} h={2} color="#4169e1" /> {/* 帽檐 */}
+          <P x={11} y={10} w={10} h={8} color="#ffe4c4" /> {/* 脸部 */}
           <P x={13} y={13} w={2} h={2} color="#8b4513" />
           <P x={17} y={13} w={2} h={2} color="#8b4513" />
-          <P x={8} y={18} w={16} h={14} color="#191970" /> {/* Robe */}
-          <P x={24} y={22} w={4} h={8} color="#8b4513" /> {/* Staff */}
+          <P x={9} y={18} w={14} h={12} color="#191970" /> {/* 长袍 */}
+          <P x={24} y={23} w={2} h={7} color="#8b4513" /> {/* 法杖 */}
+          <P x={12} y={30} w={3} h={2} color="#0d0d3d" />
+          <P x={17} y={30} w={3} h={2} color="#0d0d3d" />
         </>
       ),
       // Style 2: 刺客
       () => (
         <>
-          <P x={8} y={6} w={16} h={16} color="#2f4f4f" /> {/* Hood */}
-          <P x={12} y={12} w={8} h={6} color="#000" /> {/* Face shadow */}
-          <P x={14} y={14} w={2} h={1} color="#ff0000" /> {/* Eye glow */}
-          <P x={18} y={14} w={2} h={1} color="#ff0000" />
-          <P x={6} y={20} w={20} h={12} color="#1a1a1a" /> {/* Cloak */}
-          <P x={4} y={24} w={2} h={6} color="#c0c0c0" /> {/* Dagger */}
+          <P x={9} y={6} w={14} h={14} color="#2f4f4f" /> {/* 兜帽 */}
+          <P x={12} y={12} w={8} h={6} color="#000" /> {/* 脸部阴影 */}
+          <P x={14} y={14} w={2} h={1} color="#ff0000" /> {/* 眼睛发光 */}
+          <P x={16} y={14} w={2} h={1} color="#ff0000" />
+          <P x={8} y={20} w={16} h={10} color="#1a1a1a" /> {/* 斗篷 */}
+          <P x={5} y={24} w={2} h={5} color="#c0c0c0" /> {/* 匕首 */}
+          <P x={10} y={30} w={4} h={2} color="#0d0d0d" />
+          <P x={18} y={30} w={4} h={2} color="#0d0d0d" />
         </>
       ),
       // Style 3: 农民
       () => (
         <>
-          <P x={10} y={6} w={12} h={4} color="#deb887" /> {/* Straw hat */}
-          <P x={8} y={8} w={16} h={2} color="#d2691e" />
-          <P x={11} y={10} w={10} h={8} color="#ffdab9" /> {/* Face */}
-          <P x={13} y={13} w={2} h={2} color="#000" />
-          <P x={17} y={13} w={2} h={2} color="#000" />
-          <P x={14} y={16} w={4} h={1} color="#8b4513" /> {/* Smile */}
-          <P x={8} y={18} w={16} h={14} color="#8b7355" /> {/* Vest */}
-          <P x={20} y={22} w={6} h={8} color="#654321" /> {/* Pitchfork */}
+          <P x={10} y={6} w={12} h={3} color="#deb887" /> {/* 草帽 */}
+          <P x={9} y={9} w={14} h={2} color="#d2691e" />
+          <P x={11} y={11} w={10} h={8} color="#ffdab9" /> {/* 脸部 */}
+          <P x={13} y={14} w={2} h={2} color="#000" />
+          <P x={17} y={14} w={2} h={2} color="#000" />
+          <P x={14} y={17} w={4} h={1} color="#8b4513" /> {/* 微笑 */}
+          <P x={9} y={19} w={14} h={11} color="#8b7355" /> {/* 背心 */}
+          <P x={23} y={23} w={2} h={7} color="#654321" /> {/* 草叉 */}
+          <P x={12} y={30} w={3} h={2} color="#654321" />
+          <P x={17} y={30} w={3} h={2} color="#654321" />
         </>
       ),
       // Style 4: 商人
       () => (
         <>
-          <P x={10} y={4} w={12} h={6} color="#8b0000" /> {/* Hat */}
-          <P x={11} y={10} w={10} h={8} color="#ffefd5" /> {/* Face */}
+          <P x={10} y={5} w={12} h={4} color="#8b0000" /> {/* 帽子 */}
+          <P x={11} y={10} w={10} h={8} color="#ffefd5" /> {/* 脸部 */}
           <P x={13} y={13} w={2} h={2} color="#000" />
           <P x={17} y={13} w={2} h={2} color="#000" />
-          <P x={8} y={18} w={16} h={14} color="#800020" /> {/* Rich coat */}
-          <P x={14} y={20} w={4} h={6} color="#ffd700" /> {/* Gold buttons */}
-          <P x={4} y={24} w={4} h={6} color="#8b4513" /> {/* Bag of gold */}
+          <P x={9} y={18} w={14} h={12} color="#800020" /> {/* 华丽外套 */}
+          <P x={14} y={21} w={4} h={5} color="#ffd700" /> {/* 金扣子 */}
+          <P x={5} y={24} w={3} h={5} color="#8b4513" /> {/* 钱袋 */}
+          <P x={12} y={30} w={3} h={2} color="#4d0010" />
+          <P x={17} y={30} w={3} h={2} color="#4d0010" />
         </>
       ),
       // Style 5: 猎人
       () => (
         <>
-          <P x={10} y={6} w={12} h={4} color="#556b2f" /> {/* Hood */}
-          <P x={11} y={10} w={10} h={8} color="#d2b48c" /> {/* Face */}
+          <P x={10} y={6} w={12} h={3} color="#556b2f" /> {/* 兜帽 */}
+          <P x={11} y={10} w={10} h={8} color="#d2b48c" /> {/* 脸部 */}
           <P x={13} y={13} w={2} h={2} color="#000" />
-          <P x={17} y={13} w={2} h={2} color="#000" />
-          <P x={8} y={18} w={16} h={14} color="#6b8e23" /> {/* Tunic */}
-          <P x={2} y={20} w={6} h={2} color="#8b4513" /> {/* Bow */}
-          <P x={4} y={18} w={2} h={4} color="#8b4513" />
+          <P x={17} y={13} w={2} h={2} color="#000" />}
+          <P x={9} y={18} w={14} h={12} color="#6b8e23" /> {/* 束腰外衣 */}
+          <P x={3} y={21} w={5} h={2} color="#8b4513" /> {/* 弓 */}
+          <P x={4} y={19} w={2} h={4} color="#8b4513" />
+          <P x={12} y={30} w={3} h={2} color="#3d5016" />
+          <P x={17} y={30} w={3} h={2} color="#3d5016" />
         </>
       ),
       // Style 6: 铁匠
       () => (
         <>
-          <P x={10} y={8} w={12} h={10} color="#cd853f" /> {/* Face */}
-          <P x={8} y={10} w={16} h={4} color="#8b4513" /> {/* Bandana */}
+          <P x={10} y={9} w={12} h={9} color="#cd853f" /> {/* 脸部 */}
+          <P x={9} y={10} w={14} h={3} color="#8b4513" /> {/* 头巾 */}
           <P x={13} y={13} w={2} h={2} color="#000" />
           <P x={17} y={13} w={2} h={2} color="#000" />
-          <P x={8} y={18} w={16} h={14} color="#654321" /> {/* Apron */}
-          <P x={24} y={22} w={4} h={8} color="#696969" /> {/* Hammer */}
-          <P x={14} y={24} w={4} h={4} color="#ff4500" /> {/* Forge glow */}
+          <P x={9} y={18} w={14} h={12} color="#654321" /> {/* 围裙 */}
+          <P x={24} y={23} w={2} h={7} color="#696969" /> {/* 锤子 */}
+          <P x={14} y={24} w={4} h={3} color="#ff4500" /> {/* 熔炉光芒 */}
+          <P x={12} y={30} w={3} h={2} color="#3d2810" />
+          <P x={17} y={30} w={3} h={2} color="#3d2810" />
         </>
       ),
       // Style 7: 吟游诗人
       () => (
         <>
-          <P x={10} y={4} w={12} h={4} color="#9370db" /> {/* Hat with feather */}
-          <P x={18} y={2} w={4} h={6} color="#00ff00" /> {/* Feather */}
-          <P x={11} y={10} w={10} h={8} color="#ffe4b5" /> {/* Face */}
+          <P x={10} y={4} w={12} h={3} color="#9370db" /> {/* 羽毛帽 */}
+          <P x={19} y={2} w={3} h={5} color="#00ff00" /> {/* 羽毛 */}
+          <P x={11} y={10} w={10} h={8} color="#ffe4b5" /> {/* 脸部 */}
           <P x={13} y={13} w={2} h={2} color="#000" />
           <P x={17} y={13} w={2} h={2} color="#000" />
-          <P x={8} y={18} w={16} h={14} color="#ff69b4" /> {/* Colorful outfit */}
-          <P x={4} y={24} w={4} h={6} color="#daa520" /> {/* Lute */}
+          <P x={9} y={18} w={14} h={12} color="#ff69b4" /> {/* 彩色服装 */}
+          <P x={5} y={24} w={3} h={5} color="#daa520" /> {/* 鲁特琴 */}
+          <P x={12} y={30} w={3} h={2} color="#cc3674" />
+          <P x={17} y={30} w={3} h={2} color="#cc3674" />
         </>
       ),
     ];

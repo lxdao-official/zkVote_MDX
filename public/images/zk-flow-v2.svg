@@ -39,13 +39,4 @@
     <text x="690" y="426" font-size="20" fill="#111827" font-weight="700">5) 检查 nullifier 未使用</text>
     <text x="690" y="460" font-size="16" fill="#374151">通过后计票，并标记 nullifier 已用</text>
   </g>
-
-  <!-- Arrows -->
-  <g stroke="#111827" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <path d="M 600 270 L 660 290"/>
-    <path d="M 635 270 L 662 292 L 630 300"/>
-
-    <path d="M 600 478 L 660 426"/>
-    <path d="M 635 455 L 662 426 L 640 410"/>
-  </g>
 </svg>

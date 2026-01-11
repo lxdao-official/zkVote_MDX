@@ -18,30 +18,30 @@ export const Campfire = () => {
         xmlns="http://www.w3.org/2000/svg" 
         style={{ imageRendering: 'pixelated', overflow: 'visible' }}
       >
-        {/* Logs (Dark Wood) - 32x32 Grid */}
-        <P x={4} y={26} w={24} h={4} color="#4E342E" />
-        <P x={6} y={24} w={20} h={2} color="#5D4037" />
-        <P x={2} y={28} w={4} h={2} color="#3E2723" />
-        <P x={26} y={28} w={4} h={2} color="#3E2723" />
+        {/* 木柴 (深色木头) - 32x32 网格 */}
+        <P x={6} y={26} w={20} h={3} color="#4E342E" />
+        <P x={7} y={24} w={18} h={2} color="#5D4037" />
+        <P x={4} y={28} w={4} h={2} color="#3E2723" />
+        <P x={24} y={28} w={4} h={2} color="#3E2723" />
         
-        {/* Inner Fire (White Hot) */}
-        <P x={12} y={18} w={8} h={8} color="#FFF" className="fire-core" />
+        {/* 内部火焰 (白热) */}
+        <P x={13} y={19} w={6} h={6} color="#FFF" className="fire-core" />
         
-        {/* Middle Fire (Yellow) */}
-        <P x={10} y={16} w={12} h={8} color="#FFEB3B" className="fire-mid" style={{ mixBlendMode: 'screen' }} />
-        <P x={12} y={12} w={8} h={4} color="#FFEB3B" className="fire-mid-2" />
+        {/* 中部火焰 (黄色) */}
+        <P x={11} y={17} w={10} h={7} color="#FFEB3B" className="fire-mid" style={{ mixBlendMode: 'screen' }} />
+        <P x={13} y={13} w={6} h={4} color="#FFEB3B" className="fire-mid-2" />
 
-        {/* Outer Fire (Orange/Red) */}
-        <P x={8} y={20} w={16} h={6} color="#FF9800" className="fire-outer" opacity="0.9" />
-        <P x={14} y={8} w={4} h={4} color="#FF5722" className="fire-tip" />
-        <P x={10} y={14} w={2} h={4} color="#FF5722" className="fire-tip-2" />
-        <P x={20} y={14} w={2} h={4} color="#FF5722" className="fire-tip-3" />
+        {/* 外部火焰 (橙色/红色) */}
+        <P x={10} y={20} w={12} h={5} color="#FF9800" className="fire-outer" opacity="0.9" />
+        <P x={14} y={10} w={4} h={3} color="#FF5722" className="fire-tip" />
+        <P x={11} y={15} w={2} h={3} color="#FF5722" className="fire-tip-2" />
+        <P x={19} y={15} w={2} h={3} color="#FF5722" className="fire-tip-3" />
 
-        {/* Sparks */}
-        <P x={8} y={12} w={1} h={1} color="#FFD700" className="spark s1" />
-        <P x={22} y={10} w={1} h={1} color="#FFD700" className="spark s2" />
-        <P x={16} y={4} w={1} h={1} color="#FFD700" className="spark s3" />
-        <P x={12} y={6} w={1} h={1} color="#FFD700" className="spark s4" />
+        {/* 火花 */}
+        <P x={9} y={12} w={1} h={1} color="#FFD700" className="spark s1" />
+        <P x={21} y={11} w={1} h={1} color="#FFD700" className="spark s2" />
+        <P x={16} y={6} w={1} h={1} color="#FFD700" className="spark s3" />
+        <P x={13} y={8} w={1} h={1} color="#FFD700" className="spark s4" />
       </svg>
       <style>{`
         .fire-core { animation: pulse 0.8s infinite alternate; }
