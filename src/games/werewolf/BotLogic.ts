@@ -132,7 +132,7 @@ export const decideBotVote = (bot: Player, memory: BotMemory, livingPlayers: Pla
 };
 
 // AI对话分析：从文本中提取情感和目标
-export const analyzeDialogue = (text: string, t: TFunction): DialogueHistory['analysis'] => {
+export const analyzeDialogue = (text: string): DialogueHistory['analysis'] => {
   // 确保text是字符串
   if (!text || typeof text !== 'string') {
     return { sentiment: 'neutral' };

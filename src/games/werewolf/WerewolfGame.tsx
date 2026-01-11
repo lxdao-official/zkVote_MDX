@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PixelCard, PixelButton } from './components/PixelComponents';
 import { DetailedPixelAvatar } from './components/DetailedPixelAvatar';
@@ -63,8 +63,8 @@ export const WerewolfGame = () => {
     message: string;
     timestamp: number;
   }[]>([]);
-  const [typingMessage, setTypingMessage] = useState<string>(''); // 正在打字的消息
-  const [isTyping, setIsTyping] = useState(false); // 是否正在打字动画
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isTyping, _setIsTyping] = useState(false); // 是否正在打字动画
   const [isDiscussing, setIsDiscussing] = useState(false); // 防止重复触发讨论
 
   // Witch State
@@ -134,21 +134,7 @@ export const WerewolfGame = () => {
     setLogs(prev => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev]);
   };
   
-  // 打字机效果函数
-  const typewriterEffect = useCallback((text: string, callback: (displayText: string) => void) => {
-    let index = 0;
-    setIsTyping(true);
-    const interval = setInterval(() => {
-      if (index <= text.length) {
-        callback(text.slice(0, index));
-        index++;
-      } else {
-        clearInterval(interval);
-        setIsTyping(false);
-      }
-    }, 50); // 每50ms显示一个字
-  }, []);
-  
+
   // 添加聊天消息
   const addChatMessage = useCallback((playerId: number, playerName: string, message: string) => {
     setChatMessages(prev => [...prev, {
@@ -490,7 +476,7 @@ export const WerewolfGame = () => {
         setAgentDialogues(prev => [...prev, { id: bot.id, text }]);
         
         // AI分析：记录对话并更新行为模式
-        const analysis = analyzeDialogue(text, t);
+        const analysis = analyzeDialogue(text);
         
         // ✨ 关键修复：所有bot都要看到这条发言
         const dialogueEntry = {
@@ -773,7 +759,6 @@ export const WerewolfGame = () => {
                     <DetailedPixelAvatar 
                       role={player?.role || 'villager'}
                       isDead={player?.isDead || false}
-                      showRole={false}
                       size={32}
                       avatarId={msg.playerId}
                     />

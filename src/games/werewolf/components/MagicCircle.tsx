@@ -1,7 +1,6 @@
-import React from 'react';
 import './MagicCircle.css';
 
-export const MagicCircle = ({ active, onComplete }: { active: boolean; onComplete?: () => void }) => {
+export const MagicCircle = ({ active }: { active: boolean; onComplete?: () => void }) => {
   if (!active) return null;
 
   return (

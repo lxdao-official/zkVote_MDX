@@ -1,4 +1,3 @@
-import React from 'react';
 import './Campfire.css';
 
 export const Campfire = () => {
@@ -32,7 +31,7 @@ export const Campfire = () => {
         <P x={13} y={13} w={6} h={4} color="#FFEB3B" className="fire-mid-2" />
 
         {/* 外部火焰 (橙色/红色) */}
-        <P x={10} y={20} w={12} h={5} color="#FF9800" className="fire-outer" opacity="0.9" />
+        <P x={10} y={20} w={12} h={5} color="#FF9800" className="fire-outer" />
         <P x={14} y={10} w={4} h={3} color="#FF5722" className="fire-tip" />
         <P x={11} y={15} w={2} h={3} color="#FF5722" className="fire-tip-2" />
         <P x={19} y={15} w={2} h={3} color="#FF5722" className="fire-tip-3" />

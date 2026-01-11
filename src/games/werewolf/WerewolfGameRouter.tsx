@@ -101,11 +101,10 @@ export const WerewolfGameRouter = () => {
                   variant="parchment" 
                   className="w-full" 
                   onClick={(e) => {
-                    e.stopPropagation();
+                    e?.stopPropagation();
                     alert('此功能正在开发中，敬请期待！');
                   }}
                   disabled
-                  style={{ opacity: 0.5, cursor: 'not-allowed' }}
                 >
                   <span className="button-text">开发中</span>
                 </PixelButton>
@@ -138,11 +137,10 @@ export const WerewolfGameRouter = () => {
                   variant="parchment" 
                   className="w-full" 
                   onClick={(e) => {
-                    e.stopPropagation();
+                    e?.stopPropagation();
                     alert('此功能正在开发中，敬请期待！');
                   }}
                   disabled
-                  style={{ opacity: 0.5, cursor: 'not-allowed' }}
                 >
                   <span className="button-text">开发中</span>
                 </PixelButton>

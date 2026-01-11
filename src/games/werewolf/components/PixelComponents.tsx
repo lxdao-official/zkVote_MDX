@@ -21,7 +21,7 @@ export const PixelCard = ({ children, title, className = '' }: { children: React
   );
 };
 
-export const PixelButton = ({ onClick, children, disabled = false, variant = 'primary', className = '' }: { onClick: () => void; children: React.ReactNode; disabled?: boolean; variant?: 'primary' | 'danger' | 'success' | 'parchment'; className?: string }) => {
+export const PixelButton = ({ onClick, children, disabled = false, variant = 'primary', className = '' }: { onClick: (e?: React.MouseEvent) => void; children: React.ReactNode; disabled?: boolean; variant?: 'primary' | 'danger' | 'success' | 'parchment'; className?: string }) => {
   const btnClass = variant === 'parchment' ? 'pixel-btn-parchment' : `ww-btn ww-btn-${variant}`;
   return (
     <button

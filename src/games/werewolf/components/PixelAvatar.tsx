@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const PixelAvatar = ({ role, isDead }: { role: 'villager' | 'werewolf' | 'seer' | 'unknown'; isDead?: boolean }) => {
   const getColor = () => {
     if (isDead) return '#555';

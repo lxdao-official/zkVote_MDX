@@ -55,8 +55,10 @@ export const MultiplayerWerewolfGame = () => {
   const [selectedTarget, setSelectedTarget] = useState<number | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [dayCount, setDayCount] = useState(0);
-  const [votes, setVotes] = useState<Record<number, number>>({}); // playerId -> targetId
-  const [nightActions, setNightActions] = useState<Record<number, { targetId: number, action: string }>>({});
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_votes, setVotes] = useState<Record<number, number>>({}); // playerId -> targetId
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_nightActions, setNightActions] = useState<Record<number, { targetId: number, action: string }>>({});
   const { t } = useTranslation();
   
   // AI Config State
@@ -608,7 +610,7 @@ export const MultiplayerWerewolfGame = () => {
     // Initialize Bot Memories
     const initialMemories: Record<number, BotMemory> = {};
     playersWithRoles.filter(p => p.isBot).forEach(bot => {
-      initialMemories[bot.id] = initBotMemory(bot.id, bot.role, playersWithRoles.length);
+      initialMemories[bot.id] = initBotMemory(bot, playersWithRoles);
     });
     setBotMemories(initialMemories);
     
@@ -756,7 +758,7 @@ export const MultiplayerWerewolfGame = () => {
     return (
       <div className="scene-container" style={{ width: '500px', height: '500px', margin: '0 auto', position: 'relative' }}>
         <div className="campfire-wrapper" style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
-          <Campfire intensity={phase === 'NIGHT' ? 'low' : 'high'} />
+          <Campfire />
         </div>
         
         {players.map((p, index) => {
@@ -1228,7 +1230,7 @@ export const MultiplayerWerewolfGame = () => {
   return (
     <div className="ww-container">
       {/* 聊天记录面板 */}
-      {phase !== 'LOBBY' && (
+      {(phase as GamePhase) !== 'LOBBY' && (
         <div className="chat-panel">
           <div className="chat-header">💬 Chat Log</div>
           <div className="chat-messages">
@@ -1245,7 +1247,6 @@ export const MultiplayerWerewolfGame = () => {
                         'villager' // Otherwise show as villager (unknown)
                       }
                       isDead={player?.isDead || false}
-                      showRole={false}
                       size={32}
                       avatarId={msg.playerId}
                     />
@@ -1273,7 +1274,7 @@ export const MultiplayerWerewolfGame = () => {
                 className="flex-1 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-xs text-white"
                 style={{ fontFamily: 'monospace' }}
               />
-              <PixelButton variant="parchment" onClick={sendChatMessage} style={{ padding: '4px 8px', fontSize: '10px' }}>
+              <PixelButton variant="parchment" onClick={sendChatMessage}>
                 Send
               </PixelButton>
             </div>

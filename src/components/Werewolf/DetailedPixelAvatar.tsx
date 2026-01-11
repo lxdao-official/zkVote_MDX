@@ -1,10 +1,7 @@
-import React from 'react';
-
 type Role = 'villager' | 'werewolf' | 'seer' | 'witch' | 'unknown';
 
 export const DetailedPixelAvatar = ({ role, isDead, size = 64, avatarId = 0 }: { role: Role; isDead?: boolean; size?: number; avatarId?: number }) => {
-  // Use 64x64 grid for higher detail (64-bit pixel art)
-  const pixelSize = size / 64; 
+  // Use 64x64 grid for higher detail (64-bit pixel art) 
 
   // Helper to render a pixel rect
   const P = ({ x, y, color, w = 1, h = 1 }: { x: number; y: number; color: string; w?: number; h?: number }) => (
@@ -247,7 +244,7 @@ export const DetailedPixelAvatar = ({ role, isDead, size = 64, avatarId = 0 }: {
           <P x={10} y={6} w={12} h={3} color="#556b2f" /> {/* 兜帽 */}
           <P x={11} y={10} w={10} h={8} color="#d2b48c" /> {/* 脸部 */}
           <P x={13} y={13} w={2} h={2} color="#000" />
-          <P x={17} y={13} w={2} h={2} color="#000" />}
+          <P x={17} y={13} w={2} h={2} color="#000" />
           <P x={9} y={18} w={14} h={12} color="#6b8e23" /> {/* 束腰外衣 */}
           <P x={3} y={21} w={5} h={2} color="#8b4513" /> {/* 弓 */}
           <P x={4} y={19} w={2} h={4} color="#8b4513" />
