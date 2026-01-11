@@ -32,4 +32,12 @@ export default defineConfig({
       util: 'util',
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    },
+  },
 })

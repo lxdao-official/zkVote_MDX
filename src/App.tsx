@@ -3,7 +3,7 @@ import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { wagmiConfig } from './wagmiConfig';
 import ZKVotePage from './page/ZKVotePage'
-import { WerewolfGame } from './games/werewolf/WerewolfGame';
+import { WerewolfGameRouter } from './games/werewolf/WerewolfGameRouter';
 import './App.css'
 
 const queryClient = new QueryClient();
@@ -48,7 +48,7 @@ function App() {
               >
                 ← Back to Tutorial
               </button>
-              <WerewolfGame />
+              <WerewolfGameRouter />
             </div>
           )}
         </div>

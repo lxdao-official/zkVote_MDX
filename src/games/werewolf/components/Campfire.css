@@ -1,50 +1,170 @@
-.campfire-container {
+/* 高级篝火 - Octopath Traveler 风格 */
+.campfire-container-hd {
   position: relative;
-  width: 64px;
-  height: 64px;
-  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  filter: drop-shadow(0 8px 16px rgba(255, 100, 0, 0.6));
 }
 
-.fire {
+.campfire-svg {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  z-index: 10;
+}
+
+/* 木头层 */
+.logs {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8));
+}
+
+.wood-texture {
+  animation: woodDetail 3s ease-in-out infinite;
+}
+
+@keyframes woodDetail {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+}
+
+/* 火焰核心 */
+.fire-core-layer {
+  animation: coreIntensity 0.8s ease-in-out infinite alternate;
+  transform-origin: center bottom;
+}
+
+@keyframes coreIntensity {
+  0% { opacity: 0.9; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1.05); }
+}
+
+.fire-core {
+  filter: blur(1px) drop-shadow(0 0 4px #ffffff);
+  animation: coreFlicker 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes coreFlicker {
+  0% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+/* 火焰中层 */
+.fire-mid-layer {
+  animation: midLayerDance 1s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes midLayerDance {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  25% { transform: translateY(-2px) scaleY(1.05); }
+  50% { transform: translateY(0) scaleY(0.98); }
+  75% { transform: translateY(-1px) scaleY(1.02); }
+}
+
+.fire-mid {
+  mix-blend-mode: screen;
+  animation: midFlicker 0.5s ease-in-out infinite alternate;
+  filter: blur(0.5px);
+}
+
+@keyframes midFlicker {
+  0% { opacity: 0.7; }
+  100% { opacity: 0.9; }
+}
+
+/* 火焰外层 */
+.fire-outer-layer {
+  animation: outerWave 1.2s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes outerWave {
+  0%, 100% { transform: translateY(0) scaleX(1); }
+  33% { transform: translateY(-3px) scaleX(1.05); }
+  66% { transform: translateY(-1px) scaleX(0.95); }
+}
+
+.fire-outer {
+  animation: outerFlicker 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes outerFlicker {
+  0% { opacity: 0.6; }
+  100% { opacity: 0.9; }
+}
+
+/* 火焰尖端 */
+.fire-tip-1, .fire-tip-2, .fire-tip-3, .fire-tip-4 {
+  animation: tipDance 0.8s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+.fire-tip-2 { animation-delay: 0.2s; }
+.fire-tip-3 { animation-delay: 0.1s; }
+.fire-tip-4 { animation-delay: 0.15s; }
+
+@keyframes tipDance {
+  0%, 100% { transform: translateY(0); opacity: 0.8; }
+  50% { transform: translateY(-3px); opacity: 1; }
+}
+
+/* 余烬 */
+.ember { opacity: 0; }
+.e1 { animation: emberFloat 2.5s ease-out infinite; animation-delay: 0.3s; }
+.e2 { animation: emberFloat 3s ease-out infinite; animation-delay: 0.8s; }
+.e3 { animation: emberFloat 2.2s ease-out infinite; }
+
+@keyframes emberFloat {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  50% { opacity: 0.8; transform: translateY(-40px); }
+  100% { transform: translateY(-80px); opacity: 0; }
+}
+
+/* 环境光晕 */
+.fire-halo {
   position: absolute;
-  bottom: 10px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle,
+    rgba(255, 200, 50, 0.4) 0%,
+    rgba(255, 140, 0, 0.2) 30%,
+    transparent 70%
+  );
+  animation: haloGlow 2s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(30px);
+  z-index: 5;
+}
+
+@keyframes haloGlow {
+  0% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.95); }
+  100% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.05); }
+}
+
+/* 地面光晕 */
+.fire-ground-glow {
+  position: absolute;
+  bottom: -20px;
   left: 50%;
   transform: translateX(-50%);
+  width: 300px;
+  height: 60px;
+  background: radial-gradient(ellipse,
+    rgba(255, 140, 0, 0.5) 0%,
+    rgba(255, 69, 0, 0.3) 40%,
+    transparent 70%
+  );
+  animation: groundGlow 2s ease-in-out infinite alternate;
+  pointer-events: none;
+  filter: blur(20px);
 }
 
-.flame {
-  position: absolute;
-  bottom: 0;
-  width: 10px;
-  height: 10px;
-  background-color: #ef4444; /* red */
-  animation: flicker 0.5s infinite alternate;
-}
-
-.flame-1 { left: -8px; height: 20px; animation-delay: 0s; background-color: #f59e0b; /* orange */ }
-.flame-2 { left: 0px; height: 30px; animation-delay: 0.2s; background-color: #ef4444; /* red */ }
-.flame-3 { left: 8px; height: 20px; animation-delay: 0.1s; background-color: #facc15; /* yellow */ }
-
-.logs {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 10px;
-}
-
-.log {
-  position: absolute;
-  bottom: 0;
-  width: 30px;
-  height: 8px;
-  background-color: #78350f; /* brown */
-  border: 2px solid #451a03;
-}
-
-.log-1 { left: 5px; transform: rotate(15deg); }
-.log-2 { right: 5px; transform: rotate(-15deg); }
-
-@keyframes flicker {
-  0% { transform: scaleY(1); opacity: 1; }
-  100% { transform: scaleY(1.2); opacity: 0.8; }
+@keyframes groundGlow {
+  0% { opacity: 0.5; transform: translateX(-50%) scaleX(1); }
+  100% { opacity: 0.8; transform: translateX(-50%) scaleX(1.1); }
 }

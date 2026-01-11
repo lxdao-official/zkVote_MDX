@@ -4,6 +4,7 @@ import { MDXWrapper } from '../mdx/MDXComponents'
 import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
 import Footer from '../components/Footer'
+import FeedbackRating from '../components/FeedbackRating'
 import { useTranslation } from 'react-i18next'
 
 /**
@@ -110,6 +111,8 @@ export default function ZKVotePage() {
             <Content />
           </Suspense>
         </MDXWrapper>
+
+        <FeedbackRating />
 
         <Footer />
       </div>
