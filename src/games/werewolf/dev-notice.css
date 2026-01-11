@@ -1,0 +1,132 @@
+/* 正在开发中样式 */
+.menu-dev-notice {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.1));
+  border: 3px solid #f59e0b;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  margin-bottom: 3rem;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(245, 158, 11, 0.2),
+              inset 0 0 40px rgba(251, 191, 36, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-dev-notice::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(251, 191, 36, 0.03) 10px,
+    rgba(251, 191, 36, 0.03) 20px
+  );
+  animation: dev-notice-stripe 20s linear infinite;
+}
+
+@keyframes dev-notice-stripe {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+
+.dev-notice-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: dev-notice-bounce 2s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes dev-notice-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.dev-notice-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #f59e0b;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+  position: relative;
+  z-index: 1;
+}
+
+.dev-notice-text {
+  font-size: 1.25rem;
+  color: #fbbf24;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.dev-notice-details {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  text-align: left;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.dev-notice-details p {
+  font-size: 1.1rem;
+  color: #fbbf24;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.dev-notice-details ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dev-notice-details li {
+  padding: 0.5rem 0;
+  color: #fde68a;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dev-notice-details li::before {
+  content: '→';
+  color: #f59e0b;
+  font-weight: bold;
+}
+
+/* 禁用状态的卡片样式 */
+.menu-mode-card.mode-disabled {
+  pointer-events: none;
+  position: relative;
+}
+
+.menu-mode-card.mode-disabled::after {
+  content: '敬请期待';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #fbbf24;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: 3px solid #f59e0b;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+  z-index: 10;
+  pointer-events: none;
+}
