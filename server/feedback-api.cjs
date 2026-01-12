@@ -1,6 +1,7 @@
 const express = require('express')
 const { Pool } = require('pg')
 const cors = require('cors')
+const path = require('path')
 
 const app = express()
 const port = process.env.PORT || 3001
@@ -129,6 +130,14 @@ app.get('/api/feedback/stats', async (req, res) => {
 // 健康检查端点
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
+})
+
+// 静态文件服务 (生产环境)
+app.use(express.static(path.join(__dirname, '../dist')))
+
+// SPA fallback - 非 API 路由返回 index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'))
 })
 
 app.listen(port, () => {
