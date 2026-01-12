@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useAccount } from 'wagmi'
 
 interface FeedbackRatingProps {
   onSubmit?: (data: FeedbackData) => void
@@ -9,9 +10,11 @@ export interface FeedbackData {
   contentClarity: number
   contentDepth: number
   comments: string
+  walletAddress?: string
 }
 
 export default function FeedbackRating({ onSubmit }: FeedbackRatingProps) {
+  const { address } = useAccount()
   const [ratings, setRatings] = useState({
     understandingZK: 0,
     contentClarity: 0,
@@ -63,7 +66,10 @@ export default function FeedbackRating({ onSubmit }: FeedbackRatingProps) {
       const feedbackData: FeedbackData = {
         ...ratings,
         comments: comments.trim(),
+        walletAddress: address || undefined,
       }
+
+      console.log('提交评价数据:', feedbackData)
 
       // 发送到后端API
       const response = await fetch('/api/feedback', {

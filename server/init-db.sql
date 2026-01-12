@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS tutorial_feedback (
     content_depth INTEGER NOT NULL CHECK (content_depth >= 1 AND content_depth <= 5),
     comments TEXT,
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ip_address VARCHAR(45),
+    ip_address VARCHAR(42), -- 用于存储用户钱包地址
     user_agent TEXT
 );
 

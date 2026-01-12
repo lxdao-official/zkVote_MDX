@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
 import Footer from '../components/Footer'
 import FeedbackRating from '../components/FeedbackRating'
+import QuizSection from '../components/QuizSection'
 import { useTranslation } from 'react-i18next'
 
 /**
@@ -111,6 +112,8 @@ export default function ZKVotePage() {
             <Content />
           </Suspense>
         </MDXWrapper>
+
+        <QuizSection />
 
         <FeedbackRating />
 

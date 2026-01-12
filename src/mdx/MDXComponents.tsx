@@ -4,6 +4,7 @@ import { MDXProvider } from '@mdx-js/react'
 import Counter from '../components/Counter'
 import ChainVote from '../components/ChainVote'
 import ZKChainVote from '../components/ZKChainVote'
+import QuizSection from '../components/QuizSection'
 
 /**
  * 这里定义 MDX 内常见元素的 React 组件映射（基于 My First NFT 设计系统）
@@ -231,6 +232,7 @@ export const mdxComponents = {
   Counter,
   ChainVote,
   ZKChainVote,
+  QuizSection,
 }
 
 /**
