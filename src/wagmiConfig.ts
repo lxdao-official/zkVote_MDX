@@ -1,21 +1,16 @@
-import { getDefaultWallets } from '@rainbow-me/rainbowkit';
-import { createConfig, http } from 'wagmi';
+import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { http } from 'wagmi';
 import { sepolia } from 'wagmi/chains';
 import { createPublicClient } from 'viem';
 
 const WC_PROJECT_ID = import.meta.env.VITE_WC_PROJECT_ID;
 
-export const chains = [sepolia];
+export const chains = [sepolia] as const;
 
-const { connectors } = getDefaultWallets({
+export const wagmiConfig = getDefaultConfig({
     appName: 'MyFirstZKVote',
     projectId: WC_PROJECT_ID,
     chains,
-});
-
-export const wagmiConfig = createConfig({
-    chains,
-    connectors,
     transports: {
         [sepolia.id]: http('https://ethereum-sepolia-rpc.publicnode.com'),
     },
