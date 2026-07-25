@@ -1,9 +1,8 @@
-node_modules/
-dist/
-build/
-.git/
+node_modules
+.git
 .env
 .env.*
+dist
 *.log
-*.tsbuildinfo
-coverage/
+coverage
+.wrangler
